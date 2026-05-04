@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dr. Carrie Leff — Order Builder</title>
+<style>
+:root {
+  --rose: #FF467D;
+  --burgundy: #5B0048;
+  --rose-light: #fff0f4;
+  --burgundy-light: #f9f0f7;
+  --border: #e8d5e4;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --bg: #fafafa;
+  --white: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+.site-header { background: var(--white); border-bottom: 2px solid var(--rose); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(91,0,72,0.08); }
+.site-header svg { height: 36px; width: auto; }
+.tool-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+.app { display: grid; grid-template-columns: 1fr 320px; gap: 0; min-height: calc(100vh - 64px); }
+
+.left-panel { padding: 24px; overflow-y: auto; max-height: calc(100vh - 64px); }
+
+.patient-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: flex-end; }
+.field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.field-group label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--burgundy); }
+.field-group input { border: 1.5px solid var(--border); border-radius: 6px; padding: 7px 10px; font-size: 14px; color: var(--text); background: var(--white); outline: none; transition: border-color 0.15s; }
+.field-group input:focus { border-color: var(--rose); }
+
+.tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+.tab { padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+.tab.active { color: var(--burgundy); border-bottom-color: var(--rose); }
+.tab:hover:not(.active) { color: var(--burgundy); }
+
+.search-bar { position: relative; margin-bottom: 12px; }
+.search-bar input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 12px 9px 36px; font-size: 14px; outline: none; background: var(--white); transition: border-color 0.15s; }
+.search-bar input:focus { border-color: var(--rose); }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+
+.category-filters { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.cat-btn { padding: 4px 10px; border: 1.5px solid var(--border); border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; background: var(--white); color: var(--muted); transition: all 0.15s; white-space: nowrap; }
+.cat-btn.active { background: var(--burgundy); border-color: var(--burgundy); color: #fff; }
+.cat-btn:hover:not(.active) { border-color: var(--burgundy); color: var(--burgundy); }
+
+.category-heading { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose); padding: 10px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; margin-top: 8px; }
+.item-row { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: background 0.1s; border: 1.5px solid transparent; }
+.item-row:hover { background: var(--rose-light); }
+.item-row.checked { background: var(--rose-light); border-color: var(--rose); }
+.item-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--rose); cursor: pointer; flex-shrink: 0; }
+.item-name { flex: 1; font-size: 13px; line-height: 1.3; }
+.item-code { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.item-price { font-size: 13px; font-weight: 600; color: var(--burgundy); flex-shrink: 0; min-width: 56px; text-align: right; }
+.no-results { text-align: center; color: var(--muted); padding: 40px 0; font-size: 13px; }
+
+.right-panel { background: var(--white); border-left: 2px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 64px; height: calc(100vh - 64px); }
+.summary-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
+.summary-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--burgundy); margin-bottom: 2px; }
+.summary-count { font-size: 12px; color: var(--muted); }
+.summary-items { flex: 1; overflow-y: auto; padding: 8px 18px; }
+.summary-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 8px; }
+.summary-item:last-child { border-bottom: none; }
+.summary-item-name { font-size: 12px; color: var(--text); flex: 1; line-height: 1.3; }
+.summary-item-source { font-size: 10px; color: var(--muted); }
+.summary-item-price { font-size: 12px; font-weight: 600; color: var(--burgundy); flex-shrink: 0; }
+.summary-item-remove { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding: 0 2px; line-height: 1; flex-shrink: 0; }
+.summary-item-remove:hover { color: var(--rose); }
+.empty-state { text-align: center; color: var(--muted); padding: 40px 16px; font-size: 12px; line-height: 1.6; }
+.summary-footer { border-top: 2px solid var(--border); padding: 14px 18px; }
+.total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.total-label { font-size: 13px; font-weight: 700; color: var(--burgundy); }
+.total-amount { font-size: 20px; font-weight: 700; color: var(--burgundy); }
+.action-btns { display: flex; flex-direction: column; gap: 8px; }
+.btn { width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-primary { background: var(--rose); color: #fff; }
+.btn-primary:hover { background: #e03068; }
+.btn-secondary { background: var(--white); color: var(--burgundy); border: 1.5px solid var(--burgundy); }
+.btn-secondary:hover { background: var(--burgundy-light); }
+
+/* ── MOBILE FAB & OVERLAY ─────────────────────────────────────────────────── */
+.mobile-fab {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 16px;
+  background: var(--rose);
+  color: #fff;
+  border: none;
+  border-radius: 28px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255,70,125,0.45);
+  z-index: 200;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s;
+}
+.mobile-fab:active { transform: scale(0.97); }
+.fab-badge {
+  background: #fff;
+  color: var(--rose);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  min-width: 20px;
+  text-align: center;
+  display: inline-block;
+}
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 150;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-overlay.active { display: block; }
+.drawer-handle {
+  display: none;
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 8px;
+  flex-shrink: 0;
+}
+.summary-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.summary-close-btn:hover { color: var(--rose); }
+
+/* ── RESPONSIVE ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .app { display: block; }
+
+  .left-panel {
+    max-height: none;
+    overflow-y: visible;
+    padding: 16px;
+    padding-bottom: 90px;
+  }
+
+  .site-header { padding: 10px 16px; }
+  .site-header svg { height: 28px; }
+  .tool-label { font-size: 11px; }
+
+  .patient-row { flex-direction: column; gap: 10px; }
+
+  .tabs { overflow-x: auto; }
+  .tab { white-space: nowrap; padding: 10px 16px; }
+
+  .category-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+  .category-filters::-webkit-scrollbar { display: none; }
+  .cat-btn { flex-shrink: 0; }
+
+  /* Summary becomes a slide-up drawer */
+  .right-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 82vh;
+    border-left: none;
+    border-top: 2px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 160;
+    box-shadow: 0 -8px 32px rgba(91,0,72,0.14);
+  }
+  .right-panel.open { transform: translateY(0); }
+
+  .summary-header {
+    border-radius: 16px 16px 0 0;
+    flex-direction: column;
+    padding: 10px 18px 12px;
+  }
+  .summary-header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .drawer-handle { display: block; }
+  .summary-close-btn { display: block; }
+  .mobile-fab { display: flex; }
+
+  .item-row { padding: 8px; }
+  .item-name { font-size: 13px; }
+}
+
+@media (max-width: 420px) {
+  .left-panel { padding: 12px; padding-bottom: 90px; }
+  .tab { font-size: 12px; padding: 10px 12px; }
+  .total-amount { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="140 264 510 78">
+    <path fill="#5b0048" d="M200.35,285.21c1.05,3.12,1.62,6.45,1.62,9.92v46.53h19.56v-26.97c0-13.71-8.87-25.34-21.18-29.48"/>
+    <path fill="#ff4a76" d="M200.35,285.21c-4.14-12.31-15.78-21.18-29.48-21.18h-7.41v19.56h26.97c3.47,0,6.8.57,9.92,1.62"/>
+    <path fill="#5b0048" d="M165.07,320.48c-1.05-3.12-1.61-6.45-1.61-9.92v-46.53h-19.56v26.97c0,13.71,8.87,25.34,21.18,29.48"/>
+    <path fill="#ff4a76" d="M165.07,320.48c4.14,12.31,15.78,21.18,29.48,21.18h7.41v-19.56h-26.97c-3.47,0-6.8-.57-9.92-1.62"/>
+    <path fill="#5b0048" d="M250.51,328.92v-48.14h19.25c14.14,0,24.48,9.93,24.48,24.07s-10.2,24.07-24.61,24.07h-19.11zm18.15-41.27h-7.75v34.47h7.89c8.91,0,14.41-6.19,14.41-17.2s-5.64-17.27-14.55-17.27z"/>
+    <path fill="#5b0048" d="M321.36,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54z"/>
+    <path fill="#5b0048" d="M355.15,330.07c-13.46,0-23.59-10.27-23.59-25.09s10.2-25.36,23.73-25.36c11.02,0,19.38,7.34,21.42,18.22h-10.88c-1.09-7.96-5.17-11.76-10.95-11.76-6.73,0-12.31,6.73-12.31,18.36s6.19,18.29,14.69,18.29c6.94,0,12.1-4.28,13.87-11.9h6.46c-2.31,11.9-11.08,19.24-22.44,19.24z"/>
+    <path fill="#5b0048" d="M391.19,329.87c-6.25,0-10.54-3.88-10.54-9.38s3.26-9.11,11.49-10.95c7.82-1.7,9.79-3.4,9.79-6.26,0-2.65-2.38-4.9-6.46-4.9-4.28,0-7.55,2.72-8.36,7.34h-5.37c1.02-8.36,7.34-13.74,16.18-13.74s14.21,5.17,14.21,12.85v15.37c0,2.72,1.02,3.81,3.54,3.94v4.76c-1.09.41-2.79.68-4.62.68-4.9,0-7.61-2.38-8.29-6.25-2.04,4.08-6.12,6.53-11.56,6.53zm4.01-6.32c4.28,0,7.34-3.13,7.34-7.96v-6.32c-1.16,1.77-3.26,3.13-6.6,4.28-4.01,1.43-5.58,3.33-5.58,5.78s1.84,4.22,4.83,4.22z"/>
+    <path fill="#5b0048" d="M440.89,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54z"/>
+    <path fill="#5b0048" d="M465.64,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54z"/>
+    <path fill="#5b0048" d="M470.33,328.92v-35.9h9.59v35.9h-9.59z"/>
+    <path fill="#5b0048" d="M503.17,329.94c-10.4,0-17.68-7.28-17.68-18.84s7.61-19.11,17.54-19.11,16.52,6.8,16.52,19.38h-24c.27,8.29,4.08,12.24,9.86,12.24,4.35,0,7.89-2.79,9.18-7.55h5.37c-1.7,8.77-8.09,13.87-16.79,13.87zm-.34-32.57c-3.6,0-6.19,2.86-7,8.84h13.53c-.48-5.92-2.92-8.84-6.53-8.84z"/>
+    <path fill="#5b0048" d="M536.62,328.92v-48.14h10.4v41.34h22.17v6.8h-32.57z"/>
+    <path fill="#5b0048" d="M587.08,329.94c-10.4,0-17.68-7.28-17.68-18.84s7.62-19.11,17.54-19.11,16.52,6.8,16.52,19.38h-24c.27,8.29,4.08,12.24,9.86,12.24,4.35,0,7.89-2.79,9.18-7.55h5.37c-1.7,8.77-8.09,13.87-16.79,13.87zm-.34-32.57c-3.6,0-6.19,2.86-7,8.84h13.53c-.48-5.92-2.92-8.84-6.53-8.84z"/>
+    <path fill="#5b0048" d="M610.87,328.92v-29.85h-5.85v-6.05h5.85v-.82c0-7.96,4.35-12.03,12.85-12.03,1.9,0,4.01.27,5.44.61v5.3c-.95-.27-1.9-.41-2.92-.41-3.95,0-5.78,1.9-5.78,6.6v.75h7.07v6.05h-7.07v29.85h-9.59z"/>
+    <path fill="#5b0048" d="M633.31,328.92v-29.85h-5.85v-6.05h5.85v-.82c0-7.96,4.35-12.03,12.85-12.03,1.9,0,4.01.27,5.44.61v5.3c-.95-.27-1.9-.41-2.92-.41-3.94,0-5.78,1.9-5.78,6.6v.75h7.07v6.05h-7.07v29.85h-9.59z"/>
+    <rect fill="#5b0048" x="470.33" y="278.79" width="9.59" height="9.59"/>
+  </svg>
+  <span class="tool-label">Order Builder</span>
+</header>
+
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeSummary()"></div>
+
+<div class="app">
+  <div class="left-panel" id="leftPanel">
+    <div class="patient-row">
+      <div class="field-group" style="flex:2">
+        <label>Patient Name</label>
+        <input type="text" id="patientName" placeholder="e.g. Jane Smith">
+      </div>
+      <div class="field-group" style="flex:1">
+        <label>Date of Visit</label>
+        <input type="date" id="visitDate">
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('labcorp')">Labcorp Labs</button>
+      <button class="tab" onclick="switchTab('rmi')">RMI Imaging</button>
+    </div>
+
+    <div class="search-bar">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search…" oninput="renderList()">
+    </div>
+
+    <div class="category-filters" id="catFilters">
+      <button class="cat-btn active" onclick="setCat('all',this)">All</button>
+    </div>
+
+    <div id="itemsPanel"></div>
+  </div>
+
+  <div class="right-panel" id="rightPanel">
+    <div class="summary-header">
+      <div class="drawer-handle"></div>
+      <div class="summary-header-inner">
+        <div>
+          <div class="summary-title">Selected Recommendations</div>
+          <div class="summary-count" id="summaryCount">No items selected</div>
+        </div>
+        <button class="summary-close-btn" onclick="closeSummary()" aria-label="Close">×</button>
+      </div>
+    </div>
+    <div class="summary-items" id="summaryItems">
+      <div class="empty-state">Check items on the left to build your recommendation list.</div>
+    </div>
+    <div class="summary-footer">
+      <div class="total-row">
+        <span class="total-label">Estimated Total</span>
+        <span class="total-amount" id="totalAmount">$0.00</span>
+      </div>
+      <div class="action-btns">
+        <button class="btn btn-primary" onclick="printSummary()">Print Summary</button>
+        <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="mobile-fab" id="mobileFab" onclick="openSummary()">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+  View Summary &nbsp;<span class="fab-badge" id="fabBadge">0</span>
+</button>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+// Labcorp: [code, name, price, category]
+const LABCORP = [
+  ["008649","Aerobic Bacterial Culture",15.20,"Microbiology"],
+  ["149997","Albumin, Random Urine",10.76,"Urine & Kidney"],
+  ["140285","Albumin/Creatinine Ratio, Urine",21.52,"Urine & Kidney"],
+  ["001545","ALT (SGPT)",3.25,"Metabolic"],
+  ["001396","Amylase",7.82,"Metabolic"],
+  ["164865","ANA",14.54,"Immunology"],
+  ["520180","ANA 12 Plus Profile (RDL)",50.00,"Immunology"],
+  ["520175","ANA 12Plus Profile, Do All RDL",1045.50,"Immunology"],
+  ["164947","ANA by IFA Rfx Titer/Pattern",17.43,"Immunology"],
+  ["340897","ANA, IFA Rfx 9 Mark Multiplex",17.43,"Immunology"],
+  ["008003","Anaerobic and Aerobic Culture",42.20,"Microbiology"],
+  ["008904","Anaerobic Culture",27.00,"Microbiology"],
+  ["164914","Anti-CCP Ab, IgG/IgA",20.00,"Immunology"],
+  ["164814","Anti-Centromere B Antibodies",15.00,"Immunology"],
+  ["096339","Anti-dsDNA Antibodies",12.00,"Immunology"],
+  ["161455","Anti-Jo-1",18.00,"Immunology"],
+  ["500183","Anti-Mullerian Hormone (AMH)",60.00,"Hormones"],
+  ["012580","Antichromatin Antibodies",41.50,"Immunology"],
+  ["006338","Antiextractable Nuclear Ag",43.36,"Immunology"],
+  ["161646","Antigliadin Abs, IgA",16.00,"GI & Celiac"],
+  ["161687","Antigliadin Abs, IgG",16.00,"GI & Celiac"],
+  ["018705","Antiscleroderma-70 Antibodies",18.00,"Immunology"],
+  ["504040","APOE Alzheimer's Risk",170.00,"Genetics"],
+  ["016873","Apolipoprotein A-1",8.25,"Lipids & Cardio"],
+  ["167015","Apolipoprotein B",12.00,"Lipids & Cardio"],
+  ["007245","Arsenic, Blood",38.50,"Toxicology"],
+  ["001123","AST (SGOT)",3.25,"Metabolic"],
+  ["140889","B-Type Natriuretic Peptide",45.00,"Lipids & Cardio"],
+  ["180060","Bacterial Vaginosis, NAA",108.00,"Infectious Disease"],
+  ["322758","Basic Metabolic Panel (8)",4.16,"Metabolic"],
+  ["001099","Bilirubin, Total",3.25,"Metabolic"],
+  ["182725","BV+Ct/Ng/Tv NAA+Yeast Culture",143.46,"Infectious Disease"],
+  ["182717","BV+Trich NAA+Yeast Culture",98.00,"Infectious Disease"],
+  ["182709","BV+Yeast Culture",63.00,"Infectious Disease"],
+  ["180034","BV, Sialidase Activity",45.00,"Infectious Disease"],
+  ["180055","C albicans + C glabrata, NAA",81.00,"Infectious Disease"],
+  ["183988","C difficile Toxin Gene NAA",80.00,"GI & Celiac"],
+  ["086207","C difficile Toxins A+B, EIA",22.47,"GI & Celiac"],
+  ["504352","C Peptide, Ultrasensitive",19.84,"Hormones"],
+  ["010108","C-Peptide, Serum",19.84,"Hormones"],
+  ["120766","C-Reactive Protein, Cardiac",12.00,"Lipids & Cardio"],
+  ["006627","C-Reactive Protein, Quant",6.00,"Immunology"],
+  ["085340","Cadmium, Blood",35.00,"Toxicology"],
+  ["123255","Calprotectin, Fecal",164.00,"GI & Celiac"],
+  ["180141","Campylobacter Culture",14.40,"GI & Celiac"],
+  ["002303","Cancer Antigen (CA) 125",25.77,"Cancer Markers"],
+  ["084152","Catecholamines, Plasma",38.11,"Hormones"],
+  ["005009","CBC With Differential/Platelet",3.75,"Hematology"],
+  ["028142","CBC, Platelet, No Differential",3.70,"Hematology"],
+  ["165126","Celiac Disease Comprehensive",133.92,"GI & Celiac"],
+  ["167652","Celiac Disease HLA DQ Assoc.",175.00,"GI & Celiac"],
+  ["165142","Celiac Disease Panel",71.92,"GI & Celiac"],
+  ["186211","Chlamydia Prequot, NAA",22.73,"Infectious Disease"],
+  ["188078","Chlamydia trachomatis, NAA",22.73,"Infectious Disease"],
+  ["183194","Chlamydia/GC Amplification",45.46,"Infectious Disease"],
+  ["183616","Chlamydia/GC NAA, Confirmation",47.77,"Infectious Disease"],
+  ["303750","CMP14+4AC",4.95,"Metabolic"],
+  ["313174","CMP14+LP",9.05,"Metabolic"],
+  ["366543","CMP14+LP+CBC/D/Plt+TSH+Hb A1c",45.80,"Metabolic"],
+  ["378225","CMP14+LP+CBC/D/Plt+TSH+Hb A1c+V D25",57.80,"Metabolic"],
+  ["244481","CMP14+LP+CBC/D/Plt+TSH+PSA+Hb A1c+V D25",64.17,"Metabolic"],
+  ["247944","CMP14+LP+TSH+Hb A1c+V D25",42.05,"Metabolic"],
+  ["247945","CMP14+LP+TSH+PSA+Hb A1c+V D25",60.42,"Metabolic"],
+  ["235775","CMP14+LP+TSH+PSA+V D25",56.42,"Metabolic"],
+  ["235773","CMP14+LP+TSH+V D25",38.05,"Metabolic"],
+  ["182949","ColoFIT, Occult Blood, Fecal",25.00,"GI & Celiac"],
+  ["322000","Comp. Metabolic Panel (14)",4.55,"Metabolic"],
+  ["006452","Complement C3, Serum",13.96,"Immunology"],
+  ["001834","Complement C4, Serum",13.96,"Immunology"],
+  ["004051","Cortisol",9.00,"Hormones"],
+  ["004432","Cortisol, Urinary Free",30.81,"Hormones"],
+  ["737920","Cotinine Confirmation, Urine",35.00,"Toxicology"],
+  ["120816","Creatine Kinase (CK), MB",30.00,"Lipids & Cardio"],
+  ["002311","Creatine Kinase (CK), MB/Total",33.25,"Lipids & Cardio"],
+  ["001362","Creatine Kinase, Total",3.25,"Lipids & Cardio"],
+  ["001370","Creatinine",3.25,"Metabolic"],
+  ["013672","Creatinine, Urine",10.76,"Urine & Kidney"],
+  ["183020","Cryptosporidium EIA",78.50,"GI & Celiac"],
+  ["188714","Ct NAA, Pharyngeal",22.73,"Infectious Disease"],
+  ["188706","Ct NAA, Rectal",22.73,"Infectious Disease"],
+  ["180049","Ct Ng M genitalium NAA, Urine",81.46,"Infectious Disease"],
+  ["188070","Ct Ng TV HSV by NAA",160.46,"Infectious Disease"],
+  ["180082","Ct, Ng, M genitalium NAA, Swab",81.46,"Infectious Disease"],
+  ["180093","Ct, Ng, Mycoplasmas NAA, Swab",153.46,"Infectious Disease"],
+  ["183160","Ct, Ng, Trich vag by NAA",80.46,"Infectious Disease"],
+  ["188698","Ct/GC NAA, Pharyngeal",45.46,"Infectious Disease"],
+  ["188672","Ct/GC NAA, Rectal",45.46,"Infectious Disease"],
+  ["180047","Ct/GC/Tv NAA+Mycoplasmas Urine",249.46,"Infectious Disease"],
+  ["186200","Ct/Ng, Client Prequot, NAA",45.46,"Infectious Disease"],
+  ["115188","D-Dimer",34.65,"Hematology"],
+  ["004100","DHEA, Serum",38.16,"Hormones"],
+  ["004020","DHEA-Sulfate",15.75,"Hormones"],
+  ["117887","Dilute Russell's Viper Venom",30.00,"Hematology"],
+  ["180935","E coli Shiga Toxin EIA",14.50,"GI & Celiac"],
+  ["096230","EBV Ab VCA, IgG",18.32,"Infectious Disease"],
+  ["096735","EBV Ab VCA, IgM",18.32,"Infectious Disease"],
+  ["216655","EBV Acute Infection Antibodies",73.28,"Infectious Disease"],
+  ["240610","EBV Antibody Profile",54.96,"Infectious Disease"],
+  ["096248","EBV Early Antigen Ab, IgG",18.32,"Infectious Disease"],
+  ["010272","EBV Nuclear Antigen Ab, IgG",18.32,"Infectious Disease"],
+  ["303754","Electrolyte Panel",3.75,"Metabolic"],
+  ["307721","ENA+C3+C4+DNA/DS+Antich+Cen...",219.14,"Immunology"],
+  ["160024","ENA+DNA/DS+Antich+Centro+FA...",191.22,"Immunology"],
+  ["160014","ENA+DNA/DS+Antich+Centro+Jo...",191.22,"Immunology"],
+  ["164996","Endomysial Antibody IgA",30.00,"GI & Celiac"],
+  ["005215","Erythrocyte Sedimentation Rate",5.19,"Hematology"],
+  ["004515","Estradiol",21.50,"Hormones"],
+  ["004564","Estrone, Serum",20.00,"Hormones"],
+  ["511154","Factor V Leiden Mutation",115.00,"Genetics"],
+  ["086264","Factor VIII Activity",75.00,"Hematology"],
+  ["324741","Fe+TIBC+Fer",14.50,"Metabolic"],
+  ["209445","Fe+TIBC+Transf",14.75,"Metabolic"],
+  ["002014","Folate (Folic Acid), Serum",7.50,"Vitamins & Nutrients"],
+  ["146688","Free Androgen Index (FAI)",46.62,"Hormones"],
+  ["004309","FSH",11.25,"Hormones"],
+  ["028480","FSH and LH",22.50,"Hormones"],
+  ["043471","FSH+E2",32.75,"Hormones"],
+  ["235776","FSH+TestT+DHEA S+E2+SHBG",82.00,"Hormones"],
+  ["339878","FSH+TestT+LH+DHEA S+Prog+E2 (Standard)",120.05,"Hormones"],
+  ["379190","FSH+TestT+LH+DHEA S+Prog+E2 (Extended)",160.05,"Hormones"],
+  ["188748","GC NAA, Pharyngeal",22.73,"Infectious Disease"],
+  ["188730","GC NAA, Rectal",22.73,"Infectious Disease"],
+  ["008334","Genital Culture, Routine",13.70,"Microbiology"],
+  ["180089","Genital Mycoplasmas NAA, Swab",108.00,"Infectious Disease"],
+  ["180040","Genital Mycoplasmas NAA, Urine",108.00,"Infectious Disease"],
+  ["001958","GGT",3.25,"Metabolic"],
+  ["183480","GI Profile, Stool, PCR",300.00,"GI & Celiac"],
+  ["182204","Giardia lamblia Ag, EIA",18.90,"GI & Celiac"],
+  ["183558","Giardia/Cryptosporidium EIA",97.40,"GI & Celiac"],
+  ["163402","Gliadin IgG/IgA Ab Prof, EIA",32.00,"GI & Celiac"],
+  ["186212","Gonococcus Prequot, NAA",22.73,"Infectious Disease"],
+  ["180836","H pylori Breath Test",90.00,"GI & Celiac"],
+  ["180764","H. pylori Stool Ag, EIA",61.00,"GI & Celiac"],
+  ["144226","HAV Antibody w/ Rfx",16.00,"Infectious Disease"],
+  ["126881","HBcIgM",16.80,"Infectious Disease"],
+  ["006510","HBsAg Screen",12.49,"Infectious Disease"],
+  ["551745","HBV DNA RealTime Abbott",297.00,"Infectious Disease"],
+  ["551610","HBV Real-Time PCR, Quant",150.00,"Infectious Disease"],
+  ["144050","HCV Antibody RFX to Quant PCR",18.48,"Infectious Disease"],
+  ["042580","Heavy Metals Profile I, Blood",86.31,"Toxicology"],
+  ["706200","Heavy Metals Profile II, Blood",121.31,"Toxicology"],
+  ["001453","Hemoglobin A1c",4.00,"Metabolic"],
+  ["006734","Hep A Ab, IgM",16.22,"Infectious Disease"],
+  ["006726","Hep A Ab, Total",16.00,"Infectious Disease"],
+  ["016881","Hep B Core Ab, IgM",16.80,"Infectious Disease"],
+  ["006718","Hep B Core Ab, Tot",16.27,"Infectious Disease"],
+  ["329662","Hep B Core Ab, Total",16.27,"Infectious Disease"],
+  ["006395","Hep B Surface Ab, Qual",14.75,"Infectious Disease"],
+  ["322755","Hepatic Function Panel (7)",4.03,"Metabolic"],
+  ["006530","Hepatitis B Surf Ab Quant",14.75,"Infectious Disease"],
+  ["511345","Hered. Hemochromatosis, DNA",110.00,"Genetics"],
+  ["083935","HIV Ab/p24 Ag with Reflex",29.40,"Infectious Disease"],
+  ["006924","HLA B 27 Disease Association",52.50,"Immunology"],
+  ["507800","HPV Aptima",45.00,"Infectious Disease"],
+  ["507810","HPV Genotypes 16/18,45",65.00,"Infectious Disease"],
+  ["507805","HPV, Aptima High 16/18,45",45.00,"Infectious Disease"],
+  ["507385","HPV, cobas high-risk/16/18",110.00,"Infectious Disease"],
+  ["164099","HSV 1 and 2 Ab, IgG",38.01,"Infectious Disease"],
+  ["138651","HSV 1/2 PCR",165.00,"Infectious Disease"],
+  ["139367","HSV and VZV PCR Panel",399.50,"Infectious Disease"],
+  ["188056","HSV NAA",80.00,"Infectious Disease"],
+  ["001795","Immunofixation Result, Serum",15.36,"Immunology"],
+  ["001685","Immunofixation, Serum",45.12,"Immunology"],
+  ["001784","Immunoglobulin A, Qn, Serum",9.92,"Immunology"],
+  ["002162","Immunoglobulin D, Quant, Serum",49.50,"Immunology"],
+  ["002170","Immunoglobulin E, Total",17.06,"Immunology"],
+  ["001776","Immunoglobulin G, Qn, Serum",9.92,"Immunology"],
+  ["001792","Immunoglobulin M, Qn, Serum",9.92,"Immunology"],
+  ["002295","Immunoglobulins A/E/G/M, Serum",46.82,"Immunology"],
+  ["001768","Immunoglobulins A/G/M, Qn, Ser",29.76,"Immunology"],
+  ["004333","Insulin",6.50,"Hormones"],
+  ["010413","Intrinsic Factor Abs, Serum",23.99,"GI & Celiac"],
+  ["001339","Iron",3.25,"Metabolic"],
+  ["001321","Iron and TIBC",7.75,"Metabolic"],
+  ["001115","LDH",3.25,"Metabolic"],
+  ["120295","LDL Cholesterol (Direct)",15.80,"Lipids & Cardio"],
+  ["007625","Lead, Blood (Adult)",12.81,"Toxicology"],
+  ["001404","Lipase",7.82,"Metabolic"],
+  ["303756","Lipid Panel",4.50,"Lipids & Cardio"],
+  ["221010","Lipid Panel w/ Chol/HDL Ratio",4.50,"Lipids & Cardio"],
+  ["235010","Lipid Panel With LDL/HDL Ratio",4.50,"Lipids & Cardio"],
+  ["123544","Lipid Panel+ApoB",19.53,"Lipids & Cardio"],
+  ["120188","Lipoprotein (a)",16.00,"Lipids & Cardio"],
+  ["235002","LP",4.50,"Lipids & Cardio"],
+  ["231011","LP+ApolA1+ApoliB+Lp(a)",40.75,"Lipids & Cardio"],
+  ["098657","LP+Chol/HDL+LDL/HDL",4.50,"Lipids & Cardio"],
+  ["004580","LP+Chol/HDL+LDL/HDL+CHD Risk",4.50,"Lipids & Cardio"],
+  ["117892","Lupus Anticoagulant Reflex",50.00,"Hematology"],
+  ["004283","Luteinizing Hormone (LH)",11.25,"Hormones"],
+  ["164226","Lyme Disease Serology w/Reflex",35.00,"Infectious Disease"],
+  ["180025","M genitalium NAA, Urine",36.00,"Infectious Disease"],
+  ["001537","Magnesium",4.50,"Metabolic"],
+  ["096560","Measles Antibodies, IgG",15.96,"Infectious Disease"],
+  ["058495","Measles/Mumps/Rubella Immunity",42.46,"Infectious Disease"],
+  ["085324","Mercury, Blood",35.00,"Toxicology"],
+  ["004234","Metanephrines, Frac, Qn, 24-Hr",38.53,"Hormones"],
+  ["121806","Metanephrines, Frac., Pl. Free",60.00,"Hormones"],
+  ["004044","Metanephrines, Pheochromocyt",46.09,"Hormones"],
+  ["706961","Methylmalonic Acid, Serum",45.00,"Vitamins & Nutrients"],
+  ["006189","Mononucleosis Test, Qual",10.65,"Infectious Disease"],
+  ["511238","MTHFR",115.00,"Genetics"],
+  ["096552","Mumps Antibodies, IgG",15.06,"Infectious Disease"],
+  ["188086","Neisseria gonorrhoeae, NAA",22.73,"Infectious Disease"],
+  ["737919","Nicotine Metabolite, Urine",7.81,"Toxicology"],
+  ["143000","NT-proBNP",71.00,"Lipids & Cardio"],
+  ["722308","Opiates Confirmation, Urine",35.00,"Toxicology"],
+  ["008623","Ova + Parasite Exam",18.59,"GI & Celiac"],
+  ["163048","Parvovirus B19, IgG",35.00,"Infectious Disease"],
+  ["163154","Parvovirus B19, IgM",35.00,"Infectious Disease"],
+  ["001180","Potassium",3.25,"Metabolic"],
+  ["004317","Progesterone",12.00,"Hormones"],
+  ["004465","Prolactin",12.75,"Hormones"],
+  ["010322","Prostate-Specific Ag (PSA)",18.37,"Cancer Markers"],
+  ["005199","Prothrombin Time (PT)",6.30,"Hematology"],
+  ["480772","PSA Total (Reflex To Free)",18.37,"Cancer Markers"],
+  ["015610","PTH, Intact",28.66,"Hormones"],
+  ["503380","PTHrP (PTH-Related Peptide)",90.75,"Hormones"],
+  ["005207","PTT, Activated",7.56,"Hematology"],
+  ["117002","PTT-LA",20.00,"Hematology"],
+  ["182879","QuantiFERON-TB Gold Plus",50.00,"Infectious Disease"],
+  ["006460","Rapid Plasma Reagin, Quant",5.77,"Infectious Disease"],
+  ["322777","Renal Panel (10)",4.42,"Metabolic"],
+  ["002006","Renin Activity, Plasma",24.09,"Hormones"],
+  ["139845","Resp Panel with SARS-CoV2, NAA",371.31,"Infectious Disease"],
+  ["005280","Reticulocyte Count",6.24,"Hematology"],
+  ["070104","Reverse T3, Serum",35.00,"Thyroid"],
+  ["504560","Rheumatoid Arthritis Factor",7.03,"Immunology"],
+  ["164065","Rheumatoid Arthritis Profile",27.03,"Immunology"],
+  ["006502","Rheumatoid Factor (RF)",7.03,"Immunology"],
+  ["016353","RNP Antibodies",21.68,"Immunology"],
+  ["006072","RPR",5.77,"Infectious Disease"],
+  ["006197","Rubella Antibodies, IgG",11.44,"Infectious Disease"],
+  ["164194","Rubeola Antibodies, IgM",15.96,"Infectious Disease"],
+  ["008722","Salmonella/Shigella Screen",11.00,"GI & Celiac"],
+  ["188013","Self-Collect CT/GC NAA Swab",45.46,"Infectious Disease"],
+  ["188024","Self-Collect TV NAA Swab",35.00,"Infectious Disease"],
+  ["082016","Sex Horm Binding Glob, Serum",20.00,"Hormones"],
+  ["012708","Sjogren's Ab, Anti-SS-A/-SS-B",43.36,"Immunology"],
+  ["012682","Sjogren's Anti-SS-A",21.68,"Immunology"],
+  ["012690","Sjogren's Anti-SS-B",21.68,"Immunology"],
+  ["520196","Sjogren's Profile Plus (RDL)",280.00,"Immunology"],
+  ["016360","Smith Antibodies",21.68,"Immunology"],
+  ["008144","Stool Culture",39.90,"Microbiology"],
+  ["182445","Strep Gp A Ag, IA W/Reflex",15.13,"Infectious Disease"],
+  ["180800","Strep Gp A Detection, NAA",86.08,"Infectious Disease"],
+  ["164640","t-Transglutaminase (tTG) IgA",32.00,"GI & Celiac"],
+  ["164988","t-Transglutaminase (tTG) IgG",30.00,"GI & Celiac"],
+  ["001156","T3 Uptake",3.75,"Thyroid"],
+  ["024026","T4 and TSH",12.40,"Thyroid"],
+  ["001975","T4F",7.00,"Thyroid"],
+  ["004226","Testosterone",13.50,"Hormones"],
+  ["070195","Testosterone, Free+Total LC/MS",57.55,"Hormones"],
+  ["144980","Testosterone, Free, Direct",34.80,"Hormones"],
+  ["081786","Testosterone, Free/Tot Equilib",48.30,"Hormones"],
+  ["070001","Testosterone, Total, LC/MS",22.75,"Hormones"],
+  ["140103","Testosterone, Free and Total",48.30,"Hormones"],
+  ["042045","TgAb+Thyroglobulin, IMA or LCMS",17.74,"Thyroid"],
+  ["042060","TgAb+Thyroglobulin, IMA or RIA",17.74,"Thyroid"],
+  ["006685","Thyroglobulin Antibody",17.74,"Thyroid"],
+  ["006684","Thyroid Antibodies",25.24,"Thyroid"],
+  ["330015","Thyroid Cascade Profile",6.00,"Thyroid"],
+  ["006676","Thyroid Peroxidase (TPO) Ab",7.50,"Thyroid"],
+  ["140749","Thyroid Stim Immunoglobulin",65.00,"Thyroid"],
+  ["001149","Thyroxine (T4)",6.40,"Thyroid"],
+  ["001974","Thyroxine (T4) Free, Direct",7.00,"Thyroid"],
+  ["004937","Transferrin",7.00,"Metabolic"],
+  ["188052","Trich vag by NAA",35.00,"Infectious Disease"],
+  ["002188","Triiodothyronine (T3)",19.58,"Thyroid"],
+  ["010389","Triiodothyronine (T3), Free",20.75,"Thyroid"],
+  ["140150","Troponin T",46.00,"Lipids & Cardio"],
+  ["004280","Tryptase",54.00,"Immunology"],
+  ["004259","TSH",6.00,"Thyroid"],
+  ["316487","TSH reflex to T4F",6.00,"Thyroid"],
+  ["349829","TSH Rfx on Abnormal to Free T4",6.00,"Thyroid"],
+  ["224576","TSH+Free T4",13.00,"Thyroid"],
+  ["343893","TSH+T4F+T3Free+T3 Upt+TPO",45.00,"Thyroid"],
+  ["334995","TSH+T4F+T3Free+ThyAbs+TPO",58.99,"Thyroid"],
+  ["328461","TSH+T4F+Thyabs+TPO+T3F+T3Reve",93.99,"Thyroid"],
+  ["307560","tTG IgA/G",62.00,"GI & Celiac"],
+  ["377036","UA/M w/rflx Culture, Routine",5.46,"Urine & Kidney"],
+  ["008342","Upper Respiratory Culture",13.70,"Microbiology"],
+  ["086884","Ureaplasma/Mycoplasma hominis",25.00,"Infectious Disease"],
+  ["001057","Uric Acid",3.25,"Metabolic"],
+  ["003772","Urinalysis, Complete",5.46,"Urine & Kidney"],
+  ["003038","Urinalysis, Routine",4.51,"Urine & Kidney"],
+  ["008847","Urine Culture, Routine",12.60,"Urine & Kidney"],
+  ["009068","Urine Cytology",50.00,"Cancer Markers"],
+  ["P09068","Urine Cytology (Prof)",27.25,"Cancer Markers"],
+  ["T09068","Urine Cytology (Tech)",22.75,"Cancer Markers"],
+  ["182493","Vaginal Yeast Culture",18.00,"Microbiology"],
+  ["096776","Varicella-Zoster Ab, IgM",19.63,"Infectious Disease"],
+  ["096206","Varicella-Zoster V Ab, IgG",15.54,"Infectious Disease"],
+  ["008573","Viral Culture, General",80.00,"Microbiology"],
+  ["017509","Vitamin A, Serum",20.00,"Vitamins & Nutrients"],
+  ["121186","Vitamin B1 (Thiamine), Blood",20.63,"Vitamins & Nutrients"],
+  ["001503","Vitamin B12",9.00,"Vitamins & Nutrients"],
+  ["000810","Vitamin B12 and Folate",16.50,"Vitamins & Nutrients"],
+  ["141503","Vitamin B12 Deficiency Cascade",9.00,"Vitamins & Nutrients"],
+  ["123220","Vitamin B2, Whole Blood",61.00,"Vitamins & Nutrients"],
+  ["070115","Vitamin B3 (Niacin+Metabolite)",107.50,"Vitamins & Nutrients"],
+  ["070086","Vitamin B5",72.50,"Vitamins & Nutrients"],
+  ["004655","Vitamin B6, Plasma",33.28,"Vitamins & Nutrients"],
+  ["001805","Vitamin C",25.00,"Vitamins & Nutrients"],
+  ["081950","Vitamin D, 25-Hydroxy",23.00,"Vitamins & Nutrients"],
+  ["070140","Vitamin E",20.00,"Vitamins & Nutrients"],
+  ["084715","von Willebrand Profile",210.00,"Hematology"],
+  ["164509","vWF Activity",60.00,"Hematology"],
+  ["086280","vWF Antigen",75.00,"Hematology"],
+  ["008656","White Blood Cells (WBC), Stool",10.23,"GI & Celiac"],
+  ["001800","Zinc, Plasma or Serum",15.54,"Vitamins & Nutrients"]
+];
+
+const LC_CATS = ["Metabolic","Thyroid","Hormones","Lipids & Cardio","Hematology","Immunology","Infectious Disease","Vitamins & Nutrients","GI & Celiac","Genetics","Cancer Markers","Urine & Kidney","Microbiology","Toxicology"];
+
+const RMI = {
+  "CT": [
+    ["74150","CT Abdomen WO Contrast",259],["74160","CT Abdomen W Contrast",480],["74170","CT Abdomen WO/W Contrast",549],
+    ["74176","CT Abd & Pelvis WO Contrast",347],["74177","CT Abd & Pelvis W Contrast",617],["74178","CT Abd & Pelvis WO/W Contrast",688],
+    ["72125","CT Cervical Spine WO Contrast",287],["71250","CT Chest WO Contrast",274],["71260","CT Chest W Contrast",374],
+    ["71270","CT Chest W/WO Contrast",436],["74177CE","CT Enterography & 3D Recons",751],["70486","CT Face/Sinus WO Contrast",243],
+    ["70450","CT Head/Brain WO Contrast",201],["70470","CT Head/Brain WO/W Contrast",365],["73700","CT Lower Extremity WO Contrast",280],
+    ["72131","CT Lumbar Spine WO Contrast",280],["70491","CT Neck W Contrast",386],["70492","CT Neck WO/W Contrast",461],
+    ["72193","CT Pelvis W Contrast",472],["72192","CT Pelvis WO Contrast",252],["72194","CT Pelvis WO/W Contrast",520],
+    ["73200","CT Upper Extremity WO Contrast",312],["71275","CTA Chest W/WO Contrast",567],["75574","CCTA Coronary Arteries",569],
+    ["71271","CT Lung Screening",250],["75571","CT Cardiac Scoring",125],["74178b","CT Urography W/WO Contrast",822]
+  ],
+  "MRI": [
+    ["74183","MR Abd/Adrenal Glands W/WO Con",745],["74181","MR Abd/Adrenal Glands WO Cont",402],
+    ["70553","MR Brain/IAC/Pituitary W/WO Con",700],["70551","MR Brain/IAC/Pituitary WO Cont",386],
+    ["72141","MR Cervical WO Contrast",375],["72156","MR Cervical W/WO Contrast",704],["71550","MR Chest WO Contrast",685],
+    ["73718","MR Low Ext WO Contrast",446],["73720","MR Low Ext W/WO Contrast",743],
+    ["73721","MR Low Joint WO Contrast",396],["73723","MR Low Joint W/WO Contrast",849],
+    ["72148","MR Lumbar WO Contrast",377],["72158","MR Lumbar W/WO Contrast",703],
+    ["70543","MR Orbit/Face/Neck W/WO Contrast",742],["72197","MR Pelvis W/WO Contrast",743],["72195","MR Pelvis WO Contrast",461],
+    ["72146","MR Thoracic WO Contrast",375],["72157","MR Thoracic W/WO Contrast",705],
+    ["73218","MR Upper Ext WO Contrast",610],["73220","MR Upper Ext W/WO Contrast",896],
+    ["73221","MR Upper Joint WO Contrast",397],["73223","MR Upper Joint W/WO Contrast",850],
+    ["74185","MRA Abdomen",739],["70544","MRA Head WO Contrast",434],["MRTBS","Whole Body MRI",2200]
+  ],
+  "Ultrasound": [
+    ["76705","US Abd Single Organ (GB etc)",163],["76700","US Abdomen Complete",214],
+    ["76881","US Extremity Non-Vascular Complete",145],["76882","US Extremity Non-Vascular Limited",101],
+    ["76770","US Kidney/Aorta",199],["76801","US OB <14 Weeks",217],["76805","US OB ≥14 Weeks",249],
+    ["76856","US Pelvic",195],["76830","US Transvag Pelvic",220],["76536","US Soft Tissue Neck/Thyroid",206]
+  ],
+  "Nuclear Medicine": [
+    ["78300","Spot Bone Scan",446],["78315","3 Phase Bone Scan",650],["78306","Total Body Bone Scan",570],
+    ["78227","HIDA Scan W Pharm Intervention",957],["78472","MUGA Scan",532],
+    ["78070","Parathyroid Imaging",659],["78071","SPECT Parathyroid",769],["78014","Thyroid Uptake/Scan Single Determ",488]
+  ],
+  "Breast": [
+    ["77067","2D Digital Mamm Screening",237],["77067+77063","2D Mamm Screening W 3D Tomosynthesis",334],
+    ["77066+77062","Digital Mamm Diagnostic W 3D Tomo",427],["77065+77061","Mamm Unilateral W 3D Tomosynthesis",334],
+    ["76641","US Breast Unilateral Complete",155],["76642","US Breast Limited",157],
+    ["77049","MR Breast Bilateral W/WO W CAD",817],["77049S","MR Breast Screening Only",450]
+  ],
+  "Diagnostic Testing": [
+    ["74018","Abdomen 1 View",56],["74021","Abdomen 3+ Views",80],["73610","Ankle Complete",68],
+    ["74280","Barium Enema Air Contrast",408],["77072","Bone Age Study",49],["77074","Bone Survey Limited",120],
+    ["73650","Calcaneus Min 2 Views",53],["72040","Cervical 2-3 Views",73],["72052","Cervical 6+ Views",114],
+    ["71045","Chest 1 View",49],["71046","Chest 2 Views",75],["71048","Chest 4+ Views",86],
+    ["73000","Clavicle Complete",60],["77080","DEXA Hips Pelvis Spine",150],["76499","DEXA Whole Body Comp",165],
+    ["76499B","DEXA Whole Body Comp & Bone Density",300],["73080","Elbow Complete",60],["74220","Esophogram",181],
+    ["70150","Facial Bones",87],["73140","Finger(s) Min 2 Views",71],["73630","Foot Complete",64],
+    ["73090","Forearm 2 Views",55],["70030","Foreign Body Screening Eye",60],["73130","Hand Min 3 Views",68],
+    ["73501","Hip Unilateral 1 View",61],["73502","Hip Unilateral 2-3 Views",87],["73503","Hip Unilateral 4 Views",110],
+    ["73521","Hip Bilateral 2 Views",76],["73522","Hip Bilateral 3-4 Views",99],["73523","Hip 5 Views",114],
+    ["73060","Humerus Min 2 Views",60],["74740+58340","Hysterosalpingography",630],["73564","Knee Complete",86],
+    ["72100","Lumbosacral 2-3 Views",74],["72110","Lumbosacral 4 Views",95],["72114","Lumbosacral Complete W/ Bending",114],
+    ["70160","Nasal Bones",71],["72170","Pelvis 1-2 Views",52],["71110","Ribs Bilateral",81],
+    ["71100","Ribs Unilateral 2 Views",68],["71101","Ribs Unil W PA Chest Min 3 Views",79],
+    ["72202","Sacroiliac Joints",73],["72220","Sacrum and Coccyx",60],["73030","Shoulder Complete",64],
+    ["72200","SI Joints <3 Views",61],["70220","Sinuses Min 3 Views",70],["70260","Skull Min 4 Views",82],
+    ["74250","Small Bowel Series W/WO KUB",225],["72070","Thoracic Spine 2 Views",61],["72072","Thoracic Spine 3 View",73],
+    ["73590","Tibia/Fibula 2 Views",59],["73660","Toe(s) Min 2 Views",55],
+    ["74240","Upper GI Air W/WO KUB Single",227],["74246","Upper GI Air W/WO KUB Double",258],["73110","Wrist Complete",75]
+  ],
+  "Dopplers": [
+    ["93970","Venous Doppler Bilateral",344],["93971","Venous Doppler Unilateral",219],
+    ["93923","Pressure Measurement Doppler",234],["93926","Arterial Lower Ext Unilateral",264],
+    ["93925","Arterial Lower Ext Bilateral",447],["93976","Doppler Abd/Pelvis/Scrotal Limited",289],
+    ["93880","Carotid Doppler Bilateral",351]
+  ],
+  "Interventional": [
+    ["62321","Epidural Cervical or Thoracic",512],["62323","Epidural Lumbar",505],["62270","Lumbar Puncture",244],
+    ["22510","Vertebroplasty Thoracic",3732],["22512","Additional Vertebroplasty Level",1500],["22511","Vertebroplasty Lumbar",3720],
+    ["36598","Portogram",222],["36558","Permacath Insertion",1804],["36589","Permacath Removal",301],
+    ["36561","Mediport Insertion (Chest)",2168],["36571","Armport/Passport Insertion",2688],["36590","Mediport Removal",406],
+    ["36569","PICC Insertion",354],["49083","Paracentesis Abdominal W Imaging",544],
+    ["20610","Steroid Inj Hip/Knee/Shoulder",342],["23350","Shoulder Arthrogram Injection",1183],["27093","Hip Arthrogram Injection",1315],
+    ["76942+19000","US Guidance Aspiration + Breast Cyst",297],["19001","Additional Cyst Aspiration",49],
+    ["19081","Stereotactic Breast Biopsy",1313],["19082","Stereo Additional Lesion",895],
+    ["19083","Ultrasound Guided Breast Biopsy",1283],["19084","Ultrasound Additional Lesion",860],
+    ["19085","MR Guided Breast Biopsy + GAD",1835],["19086","MR Guided Additional Lesion",1277],
+    ["10005","FNA Thyroid Biopsy Incl US Guidance",199],["19105","Cryoablation W US Guidance",4790]
+  ],
+  "PET/CT": [
+    ["78608","PET Brain Metabolism",2976],["78815","PET CT Skull Base to Midthigh",2949],
+    ["78816","PET CT Whole Body",2949],["78814","PET Tumor Limited",2976]
+  ]
+};
+
+const RMI_CATS = Object.keys(RMI);
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let activeTab = 'labcorp';
+let activeCat = 'all';
+let selected = {};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+  buildCatButtons();
+  renderList();
+});
+
+function buildCatButtons() {
+  const cats = activeTab === 'labcorp' ? LC_CATS : RMI_CATS;
+  const el = document.getElementById('catFilters');
+  el.innerHTML = `<button class="cat-btn active" onclick="setCat('all',this)">All</button>` +
+    cats.map(c => `<button class="cat-btn" onclick="setCat('${c.replace(/'/g,"\\'")}',this)">${c}</button>`).join('');
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  activeCat = 'all';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', (i===0&&tab==='labcorp')||(i===1&&tab==='rmi')));
+  buildCatButtons();
+  renderList();
+}
+
+function setCat(cat, btn) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderList() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const panel = document.getElementById('itemsPanel');
+  let html = '';
+
+  if (activeTab === 'labcorp') {
+    let items = LABCORP.filter(r => {
+      const matchCat = activeCat === 'all' || r[3] === activeCat;
+      const matchQ = !q || r[1].toLowerCase().includes(q) || r[0].toLowerCase().includes(q);
+      return matchCat && matchQ;
+    });
+    if (!items.length) { panel.innerHTML = '<div class="no-results">No tests match your search.</div>'; return; }
+
+    if (activeCat === 'all' && !q) {
+      // group by category
+      const groups = {};
+      items.forEach(r => { (groups[r[3]] = groups[r[3]]||[]).push(r); });
+      LC_CATS.forEach(cat => {
+        if (!groups[cat]) return;
+        html += `<div class="category-heading">${cat}</div>`;
+        groups[cat].forEach(r => html += itemRow('lc_'+r[0], r[1], r[2], 'Labcorp — '+r[3], r[0]));
+      });
+    } else {
+      items.forEach(r => html += itemRow('lc_'+r[0], r[1], r[2], 'Labcorp — '+r[3], r[0]));
+    }
+  } else {
+    const cats = activeCat === 'all' ? RMI_CATS : [activeCat];
+    let any = false;
+    cats.forEach(cat => {
+      let items = RMI[cat].filter(r => !q || r[1].toLowerCase().includes(q) || r[0].toLowerCase().includes(q));
+      if (!items.length) return;
+      any = true;
+      html += `<div class="category-heading">${cat}</div>`;
+      items.forEach(r => html += itemRow('rmi_'+cat+'_'+r[0], r[1], r[2], 'RMI — '+cat, r[0]));
+    });
+    if (!any) html = '<div class="no-results">No items match your search.</div>';
+  }
+  panel.innerHTML = html;
+}
+
+function itemRow(key, name, price, source, code) {
+  const chk = selected[key] ? 'checked' : '';
+  const cls = selected[key] ? 'item-row checked' : 'item-row';
+  const ks = key.replace(/'/g,"\\'");
+  const ns = name.replace(/'/g,"\\'");
+  const ss = source.replace(/'/g,"\\'");
+  const cs = code.replace(/'/g,"\\'");
+  return `<div class="${cls}" onclick="toggle('${ks}','${ns}',${price},'${ss}','${cs}')">
+    <input type="checkbox" ${chk} onclick="event.stopPropagation();toggle('${ks}','${ns}',${price},'${ss}','${cs}')">
+    <div class="item-name">${name}<div class="item-code">${code}</div></div>
+    <div class="item-price">${fmt(price)}</div>
+  </div>`;
+}
+
+function fmt(n) { return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+// ── SELECTION ─────────────────────────────────────────────────────────────────
+function toggle(key, name, price, source, code) {
+  if (selected[key]) delete selected[key];
+  else selected[key] = {name, price, source, code};
+  renderList();
+  renderSummary();
+}
+
+function removeItem(key) { delete selected[key]; renderList(); renderSummary(); }
+function clearAll() { selected = {}; renderList(); renderSummary(); }
+
+// ── MOBILE DRAWER ─────────────────────────────────────────────────────────────
+function openSummary() {
+  document.getElementById('rightPanel').classList.add('open');
+  document.getElementById('mobileOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeSummary() {
+  document.getElementById('rightPanel').classList.remove('open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function renderSummary() {
+  const keys = Object.keys(selected);
+  const total = keys.reduce((s,k) => s+selected[k].price, 0);
+  document.getElementById('summaryCount').textContent = keys.length ? `${keys.length} item${keys.length>1?'s':''} selected` : 'No items selected';
+  document.getElementById('totalAmount').textContent = fmt(total);
+  // Update FAB badge
+  const fab = document.getElementById('mobileFab');
+  const badge = document.getElementById('fabBadge');
+  badge.textContent = keys.length;
+  fab.style.opacity = keys.length ? '1' : '0.75';
+  const box = document.getElementById('summaryItems');
+  if (!keys.length) { box.innerHTML = '<div class="empty-state">Check items on the left to build your recommendation list.</div>'; return; }
+  box.innerHTML = keys.map(k => {
+    const it = selected[k];
+    const ks = k.replace(/'/g,"\\'");
+    return `<div class="summary-item">
+      <div><div class="summary-item-name">${it.name}</div><div class="summary-item-source">${it.source}</div></div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <span class="summary-item-price">${fmt(it.price)}</span>
+        <button class="summary-item-remove" onclick="removeItem('${ks}')" title="Remove">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── PRINT ─────────────────────────────────────────────────────────────────────
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="140 264 510 78" style="height:38px;width:auto;display:block">
+  <path fill="#5b0048" d="M200.35,285.21c1.05,3.12,1.62,6.45,1.62,9.92v46.53h19.56v-26.97c0-13.71-8.87-25.34-21.18-29.48"/>
+  <path fill="#ff4a76" d="M200.35,285.21c-4.14-12.31-15.78-21.18-29.48-21.18h-7.41v19.56h26.97c3.47,0,6.8.57,9.92,1.62"/>
+  <path fill="#5b0048" d="M165.07,320.48c-1.05-3.12-1.61-6.45-1.61-9.92v-46.53h-19.56v26.97c0,13.71,8.87,25.34,21.18,29.48"/>
+  <path fill="#ff4a76" d="M165.07,320.48c4.14,12.31,15.78,21.18,29.48,21.18h7.41v-19.56h-26.97c-3.47,0-6.8-.57-9.92-1.62"/>
+  <path fill="#5b0048" d="M250.51,328.92v-48.14h19.25c14.14,0,24.48,9.93,24.48,24.07s-10.2,24.07-24.61,24.07h-19.11zm18.15-41.27h-7.75v34.47h7.89c8.91,0,14.41-6.19,14.41-17.2s-5.64-17.27-14.55-17.27z"/>
+  <path fill="#5b0048" d="M321.36,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54z"/>
+  <path fill="#5b0048" d="M355.15,330.07c-13.46,0-23.59-10.27-23.59-25.09s10.2-25.36,23.73-25.36c11.02,0,19.38,7.34,21.42,18.22h-10.88c-1.09-7.96-5.17-11.76-10.95-11.76-6.73,0-12.31,6.73-12.31,18.36s6.19,18.29,14.69,18.29c6.94,0,12.1-4.28,13.87-11.9h6.46c-2.31,11.9-11.08,19.24-22.44,19.24z"/>
+  <path fill="#5b0048" d="M391.19,329.87c-6.25,0-10.54-3.88-10.54-9.38s3.26-9.11,11.49-10.95c7.82-1.7,9.79-3.4,9.79-6.26,0-2.65-2.38-4.9-6.46-4.9-4.28,0-7.55,2.72-8.36,7.34h-5.37c1.02-8.36,7.34-13.74,16.18-13.74s14.21,5.17,14.21,12.85v15.37c0,2.72,1.02,3.81,3.54,3.94v4.76c-1.09.41-2.79.68-4.62.68-4.9,0-7.61-2.38-8.29-6.25-2.04,4.08-6.12,6.53-11.56,6.53zm4.01-6.32c4.28,0,7.34-3.13,7.34-7.96v-6.32c-1.16,1.77-3.26,3.13-6.6,4.28-4.01,1.43-5.58,3.33-5.58,5.78s1.84,4.22,4.83,4.22z"/>
+  <path fill="#5b0048" d="M440.89,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54z"/>
+  <path fill="#5b0048" d="M465.64,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54z"/>
+  <path fill="#5b0048" d="M470.33,328.92v-35.9h9.59v35.9h-9.59z"/>
+  <path fill="#5b0048" d="M503.17,329.94c-10.4,0-17.68-7.28-17.68-18.84s7.61-19.11,17.54-19.11,16.52,6.8,16.52,19.38h-24c.27,8.29,4.08,12.24,9.86,12.24,4.35,0,7.89-2.79,9.18-7.55h5.37c-1.7,8.77-8.09,13.87-16.79,13.87zm-.34-32.57c-3.6,0-6.19,2.86-7,8.84h13.53c-.48-5.92-2.92-8.84-6.53-8.84z"/>
+  <path fill="#5b0048" d="M536.62,328.92v-48.14h10.4v41.34h22.17v6.8h-32.57z"/>
+  <path fill="#5b0048" d="M587.08,329.94c-10.4,0-17.68-7.28-17.68-18.84s7.62-19.11,17.54-19.11,16.52,6.8,16.52,19.38h-24c.27,8.29,4.08,12.24,9.86,12.24,4.35,0,7.89-2.79,9.18-7.55h5.37c-1.7,8.77-8.09,13.87-16.79,13.87zm-.34-32.57c-3.6,0-6.19,2.86-7,8.84h13.53c-.48-5.92-2.92-8.84-6.53-8.84z"/>
+  <path fill="#5b0048" d="M610.87,328.92v-29.85h-5.85v-6.05h5.85v-.82c0-7.96,4.35-12.03,12.85-12.03,1.9,0,4.01.27,5.44.61v5.3c-.95-.27-1.9-.41-2.92-.41-3.95,0-5.78,1.9-5.78,6.6v.75h7.07v6.05h-7.07v29.85h-9.59z"/>
+  <path fill="#5b0048" d="M633.31,328.92v-29.85h-5.85v-6.05h5.85v-.82c0-7.96,4.35-12.03,12.85-12.03,1.9,0,4.01.27,5.44.61v5.3c-.95-.27-1.9-.41-2.92-.41-3.94,0-5.78,1.9-5.78,6.6v.75h7.07v6.05h-7.07v29.85h-9.59z"/>
+  <rect fill="#5b0048" x="470.33" y="278.79" width="9.59" height="9.59"/>
+</svg>`;
+
+function printSummary() {
+  const keys = Object.keys(selected);
+  if (!keys.length) { alert('Please select at least one recommendation before printing.'); return; }
+  const patient = document.getElementById('patientName').value.trim() || '—';
+  const dateVal = document.getElementById('visitDate').value;
+  const dateStr = dateVal ? new Date(dateVal+'T12:00:00').toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—';
+  const total = keys.reduce((s,k) => s+selected[k].price, 0);
+  const rows = keys.map((k,i) => {
+    const it = selected[k];
+    return `<tr style="background:${i%2===0?'#fff':'#fdf5fb'}">
+      <td style="padding:9px 12px;font-size:13px;color:#1a1a1a;border-bottom:1px solid #e8d5e4">${it.name}</td>
+      <td style="padding:9px 12px;font-size:12px;color:#6b6b6b;border-bottom:1px solid #e8d5e4">${it.source}</td>
+      <td style="padding:9px 12px;font-size:13px;font-weight:600;color:#5B0048;text-align:right;border-bottom:1px solid #e8d5e4">${fmt(it.price)}</td>
+    </tr>`;
+  }).join('');
+
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Recommendations — ${patient}</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:0;padding:0;color:#1a1a1a}
+.page{max-width:700px;margin:0 auto;padding:40px 40px 60px}
+.print-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid #FF467D;margin-bottom:24px}
+.print-title{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#5B0048}
+.meta-table{width:100%;margin-bottom:24px;border-collapse:collapse}
+.meta-table td{font-size:13px;padding:4px 0}
+.meta-table .lbl{font-weight:600;color:#5B0048;width:110px}
+.items-table{width:100%;border-collapse:collapse;border:1px solid #e8d5e4;border-radius:8px;overflow:hidden}
+.items-table th{background:#5B0048;color:#fff;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:10px 12px;text-align:left}
+.items-table th:last-child{text-align:right}
+.total-box{display:flex;justify-content:space-between;align-items:baseline;margin-top:20px;padding:14px 16px;background:#fff0f4;border-radius:8px;border:1.5px solid #FF467D}
+.total-lbl{font-size:14px;font-weight:700;color:#5B0048}
+.total-amt{font-size:22px;font-weight:700;color:#5B0048}
+.footer{margin-top:32px;padding-top:16px;border-top:1px solid #e8d5e4;font-size:11px;color:#6b6b6b;text-align:center}
+.disclaimer{font-size:10px;color:#999;margin-top:6px}
+@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="page">
+  <div class="print-header">${LOGO_SVG}<span class="print-title">Recommended Services</span></div>
+  <table class="meta-table">
+    <tr><td class="lbl">Patient</td><td>${patient}</td></tr>
+    <tr><td class="lbl">Date</td><td>${dateStr}</td></tr>
+    <tr><td class="lbl">Items</td><td>${keys.length} recommendation${keys.length>1?'s':''}</td></tr>
+  </table>
+  <table class="items-table">
+    <thead><tr><th>Service</th><th>Source</th><th style="text-align:right">Price</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="total-box"><span class="total-lbl">Estimated Total</span><span class="total-amt">${fmt(total)}</span></div>
+  <div class="footer">drcarrieleff.com &nbsp;·&nbsp; Questions? Message us through your patient portal.
+    <div class="disclaimer">Prices are cash/self-pay rates. Labcorp pricing effective 04/30/2026. RMI time-of-service pricing effective 2/2025. Subject to change.</div>
+  </div>
+</div>
+<script>window.onload=function(){window.print();window.onafterprint=function(){window.close()};}<\/script>
+</body></html>`);
+  win.document.close();
+}
+</script>
+</body>
+</html>

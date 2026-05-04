@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cairn Advisory — Email Template</title>
+<!--
+  ╔══════════════════════════════════════════════════════════════════╗
+  ║  CAIRN ADVISORY — Reusable Client Email Template                ║
+  ║                                                                  ║
+  ║  HOW TO USE:                                                     ║
+  ║  1. Replace {{CLIENT_NAME}} with the recipient's first name      ║
+  ║  2. Replace the SUBJECT LINE comment below                       ║
+  ║  3. Edit the body paragraphs between the body markers            ║
+  ║  4. Update the CTA button href and label (or remove it)          ║
+  ║  5. Copy the entire <body> → </body> content into your           ║
+  ║     email client's HTML/rich-text field, or use the Gmail        ║
+  ║     draft MCP tool with the html_body parameter                  ║
+  ╚══════════════════════════════════════════════════════════════════╝
+
+  SUBJECT LINE: [Replace this with your email subject]
+-->
+<style>
+  /* Reset */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Base — mirrors Cairn Advisory site palette */
+  body {
+    background-color: #EDE8DF;
+    font-family: 'Figtree', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: #1C1916;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Outer wrapper */
+  .email-wrapper {
+    max-width: 600px;
+    margin: 40px auto;
+    background-color: #F2EDE4;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .email-header {
+    background-color: #1C1916;
+    padding: 30px 48px 28px;
+    text-align: left;
+  }
+
+  .header-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .header-mark {
+    display: block;
+    height: 52px;
+    width: auto;
+    flex-shrink: 0;
+  }
+
+  .header-wordmark {
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* ── BODY ── */
+  .email-body {
+    padding: 44px 48px 40px;
+  }
+
+  .salutation {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    color: #1C1916;
+    margin-bottom: 20px;
+  }
+
+  .email-body p {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #1C1916;
+    margin-bottom: 18px;
+  }
+
+  .email-body strong {
+    font-weight: 500;
+    color: #1C1916;
+  }
+
+  .email-body em {
+    font-style: italic;
+    color: #9B7B55;
+  }
+
+  /* Section divider */
+  .divider {
+    border: none;
+    border-top: 1px solid #D9D2C7;
+    margin: 32px 0;
+  }
+
+  /* Highlight block — use for key info, links, or quick recaps */
+  .highlight-block {
+    background-color: #EDE8DF;
+    border-left: 3px solid #9B7B55;
+    border-radius: 0 3px 3px 0;
+    padding: 18px 20px;
+    margin: 24px 0;
+  }
+
+  .highlight-block p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #4A4238;
+  }
+
+  .highlight-block p:last-child {
+    margin-bottom: 0;
+  }
+
+  .highlight-block .label {
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #9B7B55;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* Numbered list */
+  .steps-list {
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .steps-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #1C1916;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #2B2520;
+    color: #F2EDE4;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  /* CTA button */
+  .cta-wrap {
+    text-align: center;
+    margin: 32px 0 8px;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background-color: #2B2520;
+    color: #F2EDE4 !important;
+    text-decoration: none;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 2px;
+  }
+
+  /* Sign-off */
+  .sign-off {
+    margin-top: 32px;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    color: #1C1916;
+    line-height: 1.7;
+  }
+
+  .sign-off .name {
+    font-weight: 500;
+    margin-top: 8px;
+  }
+
+  .sign-off .title {
+    color: #9B7B55;
+    font-size: 13px;
+  }
+
+  /* ── FOOTER ── */
+  .email-footer {
+    background-color: #EDE8DF;
+    border-top: 1px solid #D9D2C7;
+    padding: 24px 48px;
+    text-align: center;
+  }
+
+  .email-footer p {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    color: #8C7B6B;
+    line-height: 1.7;
+    margin-bottom: 4px;
+  }
+
+  .email-footer a {
+    color: #9B7B55;
+    text-decoration: none;
+  }
+
+  /* Google Fonts import — works in browsers; email clients will fallback gracefully */
+  @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;500&display=swap');
+</style>
+</head>
+<body>
+
+<div class="email-wrapper">
+
+  <!-- ── HEADER ── -->
+  <div class="email-header">
+    <div class="header-logo-row">
+      <!-- Stones mark — transparent PNG, floats cleanly on dark bg -->
+      <img class="header-mark"
+           src="https://jfenton-design.github.io/cairnadvisory/homepage-assets/cairn-mark-cutout.png"
+           alt="Cairn Advisory" />
+      <!-- SVG wordmark: textLength forces both lines to identical width -->
+      <svg class="header-wordmark"
+           viewBox="0 0 128 46" width="128" height="46"
+           xmlns="http://www.w3.org/2000/svg">
+        <text
+          textLength="128" lengthAdjust="spacing"
+          font-family="Figtree, -apple-system, Helvetica, sans-serif"
+          font-weight="300" font-size="24"
+          fill="#FFFFFF" y="25">CAIRN</text>
+        <text
+          textLength="128" lengthAdjust="spacing"
+          font-family="Figtree, -apple-system, Helvetica, sans-serif"
+          font-weight="300" font-size="10"
+          fill="#FFFFFF" y="42">ADVISORY</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── BODY ── -->
+  <div class="email-body">
+
+    <!-- SALUTATION: Replace {{CLIENT_NAME}} -->
+    <p class="salutation">Hi {{CLIENT_NAME}},</p>
+
+    <!-- ═══════════════════════════════════════════
+         BODY — edit everything between these lines
+         ═══════════════════════════════════════════ -->
+
+    <p>
+      [Opening paragraph — what this email is about. Keep it brief and direct.
+      One or two sentences that orient the reader immediately.]
+    </p>
+
+    <p>
+      [Context or background paragraph. Explain the why, or add any relevant
+      detail the client needs to understand what's coming next.]
+    </p>
+
+    <!-- Optional: Highlight Block — great for a key link, file, or quick summary -->
+    <div class="highlight-block">
+      <span class="label">Quick summary</span>
+      <p><strong>Item one:</strong> Brief description of first key point.</p>
+      <p><strong>Item two:</strong> Brief description of second key point.</p>
+      <p><strong>Item three:</strong> Brief description of third key point.</p>
+    </div>
+
+    <!-- Optional: Numbered Steps — great for walkthroughs or action items -->
+    <!--
+    <ol class="steps-list">
+      <li><span class="step-num">1</span><span>First step or action item. Be specific about what the client should do or expect.</span></li>
+      <li><span class="step-num">2</span><span>Second step. Keep each item to one or two sentences.</span></li>
+      <li><span class="step-num">3</span><span>Third step. Close with what happens after they complete the steps.</span></li>
+    </ol>
+    -->
+
+    <p>
+      [Closing paragraph — what's next, or an invitation to reply with questions.
+      Keep the tone warm but efficient.]
+    </p>
+
+    <!-- Optional: CTA Button — update href and label, or delete this block -->
+    <div class="cta-wrap">
+      <a href="{{CTA_URL}}" class="cta-button">{{CTA_LABEL}}</a>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+
+    <hr class="divider">
+
+    <!-- SIGN-OFF -->
+    <div class="sign-off">
+      <p>Best,</p>
+      <p class="name">Jacob Fenton</p>
+      <p class="title">Cairn Advisory</p>
+    </div>
+
+  </div><!-- /.email-body -->
+
+  <!-- ── FOOTER ── -->
+  <div class="email-footer">
+    <p>Cairn Advisory &nbsp;·&nbsp; AI Advisory for Established Operators</p>
+    <p><a href="mailto:jacob@cairnadvisory.co">jacob@cairnadvisory.co</a></p>
+  </div>
+
+</div><!-- /.email-wrapper -->
+
+</body>
+</html>

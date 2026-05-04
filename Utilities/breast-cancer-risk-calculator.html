@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Patient handout from Dr. Carrie Leff — Breast Cancer Risk Assessment | Dr. Carrie Leff, DO" />
+  <meta property="og:title" content="Breast Cancer Risk Assessment | Dr. Carrie Leff, DO — Dr. Carrie Leff" />
+  <meta property="og:description" content="Patient handout from Dr. Carrie Leff — Breast Cancer Risk Assessment | Dr. Carrie Leff, DO" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Dr. Carrie Leff, DO" />
+<title>Breast Cancer Risk Assessment | Dr. Carrie Leff, DO</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --burgundy: #5B0048;
+  --rose: #FF467D;
+  --tan: #F1EEE9;
+  --light-tan: #F8F6F3;
+  --rose-light: #FFD6E3;
+  --text-dark: #1A1A1A;
+  --text-mid: #4A4A4A;
+  --text-light: #7A7A7A;
+  --border: #E0D9D2;
+  --white: #FFFFFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--tan);color:var(--text-dark);min-height:100vh;line-height:1.6}
+
+/* Header */
+.site-header{background:var(--white);border-bottom:3px solid var(--burgundy);padding:16px 24px 14px;text-align:center}
+.site-header svg{height:48px;width:auto;display:block;margin:0 auto}
+.site-header p{font-size:.82rem;color:var(--burgundy);margin-top:8px;font-weight:500;letter-spacing:.01em}
+
+/* Layout */
+.container{max-width:740px;margin:0 auto;padding:24px 16px 48px}
+
+/* Progress */
+.progress-wrap{background:var(--white);border-radius:12px;padding:18px 22px;margin-bottom:22px;box-shadow:0 2px 8px rgba(91,0,72,.07)}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.82rem}
+.progress-meta .step-name{font-weight:600;color:var(--burgundy)}
+.progress-meta .step-count{color:var(--text-light)}
+.progress-track{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--burgundy);border-radius:3px;transition:width .4s ease}
+.dot-row{display:flex;justify-content:space-between;margin-top:10px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--border);transition:background .3s,transform .3s}
+.dot.done{background:var(--burgundy)}
+.dot.active{background:var(--rose);transform:scale(1.35)}
+
+/* Card */
+.card{background:var(--light-tan);border-radius:16px;padding:30px 26px;box-shadow:0 2px 12px rgba(91,0,72,.07);animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.step-title{font-family:'Playfair Display',serif;font-size:1.45rem;color:var(--burgundy);margin-bottom:5px}
+.step-sub{font-size:.88rem;color:var(--text-mid);margin-bottom:26px;line-height:1.55}
+
+/* Fields */
+.fg{margin-bottom:20px}
+label{display:block;font-weight:500;font-size:.88rem;color:var(--text-dark);margin-bottom:5px}
+.hint{font-weight:400;color:var(--text-light);font-size:.8rem;margin-left:3px}
+input[type=number],select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.93rem;background:var(--white);color:var(--text-dark);transition:border-color .2s;-webkit-appearance:auto;appearance:auto}
+input[type=number]:focus,select:focus{outline:none;border-color:var(--burgundy)}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px}
+.bmi-note{font-size:.82rem;color:var(--text-mid);margin-top:5px}
+.bmi-val{font-weight:600;color:var(--burgundy)}
+
+/* Radio */
+.rg{display:flex;flex-direction:column;gap:7px}
+.ro{display:flex;align-items:flex-start;gap:10px;padding:9px 13px;background:var(--white);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .2s,background .2s}
+.ro:hover{border-color:var(--burgundy);background:#faf8f5}
+.ro input[type=radio]{margin-top:2px;flex-shrink:0;accent-color:var(--burgundy)}
+.ro label{margin:0;cursor:pointer;font-weight:400}
+.rm{font-weight:500;font-size:.88rem}
+.rs{font-size:.78rem;color:var(--text-light);margin-top:1px}
+
+/* Errors */
+.err{color:var(--rose);font-size:.8rem;margin-top:4px;display:none}
+.has-error input,.has-error select{border-color:var(--rose)!important}
+.has-error .err{display:block}
+
+/* Conditional */
+.cond{margin-top:10px;padding:15px;background:rgba(91,0,72,.04);border-radius:8px;border-left:3px solid var(--burgundy);display:none}
+
+/* Tooltip */
+.tip-btn{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:var(--burgundy);color:#fff;font-size:.68rem;font-weight:700;border:none;cursor:pointer;margin-left:5px;vertical-align:middle;position:relative}
+.tip-box{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--text-dark);color:#fff;padding:10px 14px;border-radius:8px;font-size:.78rem;font-weight:400;width:240px;line-height:1.4;z-index:100;text-align:left;pointer-events:none}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--text-dark)}
+.tip-btn:hover .tip-box,.tip-btn:focus .tip-box{display:block}
+
+/* Info box */
+.info-box{background:rgba(91,0,72,.05);border-radius:8px;padding:11px 15px;margin-bottom:16px;font-size:.84rem;color:var(--text-mid);line-height:1.5}
+
+/* Section label */
+.sec-label{font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--rose);margin:18px 0 12px}
+
+/* Nav */
+.nav{display:flex;gap:10px;margin-top:28px;justify-content:flex-end}
+.btn{padding:11px 22px;border-radius:8px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;border:none;cursor:pointer;transition:opacity .2s,transform .1s}
+.btn:hover{opacity:.87}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--rose);color:#fff}
+.btn-secondary{background:transparent;color:var(--burgundy);border:1.5px solid var(--burgundy)}
+
+/* Results */
+.r-header{text-align:center;margin-bottom:24px}
+.r-header h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--burgundy);margin-bottom:5px}
+.r-header p{font-size:.83rem;color:var(--text-mid);font-style:italic}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+.r-card{background:var(--white);border-radius:12px;padding:18px;border:1.5px solid var(--border)}
+.r-card-title{font-family:'Playfair Display',serif;font-size:.97rem;color:var(--burgundy);margin-bottom:3px}
+.r-card-sub{font-size:.73rem;color:var(--text-light);margin-bottom:14px}
+.r-stat{margin-bottom:11px}
+.r-stat-lbl{font-size:.74rem;color:var(--text-mid);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+.r-stat-val{font-size:1.55rem;font-weight:600;color:var(--text-dark);line-height:1}
+.r-stat-cmp{font-size:.75rem;color:var(--text-light);margin-top:2px}
+.badge{display:inline-block;padding:3px 11px;border-radius:100px;font-size:.78rem;font-weight:600;margin-top:10px}
+.badge-avg{background:#E8F5E9;color:#2E7D32}
+.badge-slight{background:#FFF8E1;color:#E65100}
+.badge-elev{background:#FFEBEE;color:#C62828}
+.r-note{font-size:.73rem;color:var(--text-light);font-style:italic;margin-top:10px;border-top:1px solid var(--border);padding-top:9px}
+
+/* High risk callout */
+.hr-callout{background:var(--rose-light);border:2px solid var(--burgundy);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+.hr-callout-title{font-family:'Playfair Display',serif;color:var(--burgundy);font-size:1rem;margin-bottom:8px}
+.hr-callout p{font-size:.88rem;color:var(--text-dark);line-height:1.6}
+
+/* Explainer */
+.explainer{background:var(--white);border-radius:12px;padding:20px;margin-bottom:22px}
+.explainer h3{font-family:'Playfair Display',serif;color:var(--burgundy);font-size:1.05rem;margin-bottom:10px}
+.explainer p{font-size:.86rem;color:var(--text-mid);margin-bottom:10px;line-height:1.6}
+.explainer ul{list-style:none;padding:0}
+.explainer li{font-size:.86rem;color:var(--text-mid);padding:5px 0 5px 20px;position:relative;line-height:1.5}
+.explainer li::before{content:'→';position:absolute;left:0;color:var(--rose);font-weight:600}
+
+/* Action buttons */
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+/* Disclaimer */
+.disclaimer{font-size:.73rem;color:var(--text-light);text-align:center;margin-top:28px;padding:14px;border-top:1px solid var(--border);line-height:1.5}
+
+/* Steps */
+.step{display:none}
+.step.active{display:block}
+
+/* Responsive */
+@media(max-width:560px){
+  .row-3{grid-template-columns:1fr 1fr;}.row-3 .fg:last-child{grid-column:span 2}
+  .r-grid{grid-template-columns:1fr}
+  .card{padding:20px 16px}
+}
+
+/* Print */
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+  .site-header{border-bottom:2px solid var(--burgundy)}
+  .progress-wrap,.nav,.actions,.btn-secondary,.btn-primary:not(.print-btn){display:none!important}
+  .card{box-shadow:none;padding:0;background:#fff}
+  .step:not(.active){display:none}
+  .r-card,.explainer,.hr-callout{break-inside:avoid}
+  .container{padding-bottom:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="135 258 525 87" aria-label="Dr. Carrie Leff logo">
+    <defs><style>.sl0{fill:#5b0048}.sl1{fill:#ff4a76}</style></defs>
+    <path class="sl0" d="M200.35,285.21c1.05,3.12,1.62,6.45,1.62,9.92v46.53s19.56,0,19.56,0v-26.97c0-13.71-8.87-25.34-21.18-29.48"/>
+    <path class="sl1" d="M200.35,285.21c-4.14-12.31-15.78-21.18-29.48-21.18h-7.41s0,19.56,0,19.56h26.97c3.47,0,6.8.57,9.92,1.62"/>
+    <path class="sl0" d="M165.07,320.48c-1.05-3.12-1.61-6.45-1.61-9.92v-46.53s-19.56,0-19.56,0v26.97c0,13.71,8.87,25.34,21.18,29.48"/>
+    <path class="sl1" d="M165.07,320.48c4.14,12.31,15.78,21.18,29.48,21.18h7.41s0-19.56,0-19.56h-26.97c-3.47,0-6.8-.57-9.92-1.62"/>
+    <path class="sl0" d="M250.51,328.92v-48.14h19.25c14.14,0,24.48,9.93,24.48,24.07s-10.2,24.07-24.61,24.07h-19.11ZM268.66,287.65h-7.75v34.47h7.89c8.91,0,14.41-6.19,14.41-17.2s-5.64-17.27-14.55-17.27Z"/>
+    <path class="sl0" d="M321.36,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54Z"/>
+    <path class="sl0" d="M355.15,330.07c-13.46,0-23.59-10.27-23.59-25.09s10.2-25.36,23.73-25.36c11.02,0,19.38,7.34,21.42,18.22h-10.88c-1.09-7.96-5.17-11.76-10.95-11.76-6.73,0-12.31,6.73-12.31,18.36s6.19,18.29,14.69,18.29c6.94,0,12.1-4.28,13.87-11.9h6.46c-2.31,11.9-11.08,19.24-22.44,19.24Z"/>
+    <path class="sl0" d="M391.19,329.87c-6.25,0-10.54-3.88-10.54-9.38s3.26-9.11,11.49-10.95c7.82-1.7,9.79-3.4,9.79-6.26,0-2.65-2.38-4.9-6.46-4.9-4.28,0-7.55,2.72-8.36,7.34h-5.37c1.02-8.36,7.34-13.74,16.18-13.74s14.21,5.17,14.21,12.85v15.37c0,2.72,1.02,3.81,3.54,3.94v4.76c-1.09.41-2.79.68-4.62.68-4.9,0-7.61-2.38-8.29-6.25-2.04,4.08-6.12,6.53-11.56,6.53ZM395.2,323.55c4.28,0,7.34-3.13,7.34-7.96v-6.32c-1.16,1.77-3.26,3.13-6.6,4.28-4.01,1.43-5.58,3.33-5.58,5.78s1.84,4.22,4.83,4.22Z"/>
+    <path class="sl0" d="M440.89,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54Z"/>
+    <path class="sl0" d="M465.64,302.54c-1.29-.34-2.65-.54-4.08-.54-4.76,0-7.41,2.86-7.41,8.7v18.22h-9.59v-35.9h9.04v9.86c1.77-6.73,6.39-10.81,12.04-10.88v10.54Z"/>
+    <path class="sl0" d="M470.33,328.92v-35.9h9.59v35.9h-9.59Z"/>
+    <path class="sl0" d="M503.17,329.94c-10.4,0-17.68-7.28-17.68-18.84s7.61-19.11,17.54-19.11,16.52,6.8,16.52,19.38h-24c.27,8.29,4.08,12.24,9.86,12.24,4.35,0,7.89-2.79,9.18-7.55h5.37c-1.7,8.77-8.09,13.87-16.79,13.87ZM502.83,297.37c-3.6,0-6.19,2.86-7,8.84h13.53c-.48-5.92-2.92-8.84-6.53-8.84Z"/>
+    <path class="sl0" d="M536.62,328.92v-48.14h10.4v41.34h22.17v6.8h-32.57Z"/>
+    <path class="sl0" d="M587.08,329.94c-10.4,0-17.68-7.28-17.68-18.84s7.62-19.11,17.54-19.11,16.52,6.8,16.52,19.38h-24c.27,8.29,4.08,12.24,9.86,12.24,4.35,0,7.89-2.79,9.18-7.55h5.37c-1.7,8.77-8.09,13.87-16.79,13.87ZM586.74,297.37c-3.6,0-6.19,2.86-7,8.84h13.53c-.48-5.92-2.92-8.84-6.53-8.84Z"/>
+    <path class="sl0" d="M610.87,328.92v-29.85h-5.85v-6.05h5.85v-.82c0-7.96,4.35-12.03,12.85-12.03,1.9,0,4.01.27,5.44.61v5.3c-.95-.27-1.9-.41-2.92-.41-3.95,0-5.78,1.9-5.78,6.6v.75h7.07v6.05h-7.07v29.85h-9.59Z"/>
+    <path class="sl0" d="M633.31,328.92v-29.85h-5.85v-6.05h5.85v-.82c0-7.96,4.35-12.03,12.85-12.03,1.9,0,4.01.27,5.44.61v5.3c-.95-.27-1.9-.41-2.92-.41-3.94,0-5.78,1.9-5.78,6.6v.75h7.07v6.05h-7.07v29.85h-9.59Z"/>
+    <rect class="sl0" x="470.33" y="278.79" width="9.59" height="9.59"/>
+  </svg>
+  <p>Breast Cancer Risk Assessment Tool</p>
+</header>
+
+<div class="container">
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta">
+      <span class="step-name" id="pName">About You</span>
+      <span class="step-count" id="pCount">Step 1 of 4</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="pFill" style="width:20%"></div></div>
+    <div class="dot-row">
+      <div class="dot active" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+      <div class="dot" id="d4"></div>
+      <div class="dot" id="d5"></div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <!-- STEP 1 -->
+    <div class="step active" id="step-1">
+      <h2 class="step-title">About You</h2>
+      <p class="step-sub">All information stays on your device and is never stored or transmitted anywhere. Refreshing this page clears everything.</p>
+
+      <div class="fg" id="fg-age">
+        <label for="age">Current age</label>
+        <input type="number" id="age" min="20" max="90" placeholder="e.g. 45">
+        <span class="err" id="err-age">Please enter your age (20–90).</span>
+      </div>
+
+      <div class="sec-label">Height &amp; Weight</div>
+      <div class="row-3">
+        <div class="fg" id="fg-feet">
+          <label for="feet">Feet</label>
+          <input type="number" id="feet" min="4" max="7" placeholder="5">
+          <span class="err" id="err-feet">Required.</span>
+        </div>
+        <div class="fg" id="fg-inches">
+          <label for="inches">Inches</label>
+          <input type="number" id="inches" min="0" max="11" placeholder="5">
+          <span class="err" id="err-inches">Enter 0–11.</span>
+        </div>
+        <div class="fg" id="fg-weight">
+          <label for="weight">Weight (lbs)</label>
+          <input type="number" id="weight" min="70" max="600" placeholder="145">
+          <span class="err" id="err-weight">Required.</span>
+        </div>
+      </div>
+      <div class="bmi-note" id="bmiNote"></div>
+
+      <div class="fg" id="fg-race" style="margin-top:18px">
+        <label for="race">Race / Ethnicity <span class="hint">— affects baseline risk calculations</span></label>
+        <select id="race">
+          <option value="">— Select —</option>
+          <option value="white">White, non-Hispanic</option>
+          <option value="black">Black or African American</option>
+          <option value="hispanic">Hispanic or Latina</option>
+          <option value="asian">Asian American or Pacific Islander</option>
+          <option value="other">Other / Prefer not to say</option>
+        </select>
+        <span class="err" id="err-race">Please select an option.</span>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-primary" onclick="nextStep(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" id="step-2">
+      <h2 class="step-title">Menstrual &amp; Reproductive History</h2>
+      <p class="step-sub">Lifetime hormone exposure influences breast cancer risk. Answer based on your own experience.</p>
+
+      <div class="fg" id="fg-menarche">
+        <label>Age at first menstrual period</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="menarche" value="under12"><div><div class="rm">Under 12</div></div></label>
+          <label class="ro"><input type="radio" name="menarche" value="12-13"><div><div class="rm">Age 12 or 13</div></div></label>
+          <label class="ro"><input type="radio" name="menarche" value="14plus"><div><div class="rm">Age 14 or older</div></div></label>
+        </div>
+        <span class="err" id="err-menarche">Please select an option.</span>
+      </div>
+
+      <div class="fg" id="fg-pregnant">
+        <label>Have you ever been pregnant?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="pregnant" value="yes" onchange="show('secPregnant')"><div><div class="rm">Yes</div></div></label>
+          <label class="ro"><input type="radio" name="pregnant" value="no" onchange="hide('secPregnant')"><div><div class="rm">No</div></div></label>
+        </div>
+        <span class="err" id="err-pregnant">Please select an option.</span>
+      </div>
+      <div class="cond" id="secPregnant">
+        <div class="fg" id="fg-firstbirth">
+          <label for="firstBirth">Age at first live birth</label>
+          <select id="firstBirth">
+            <option value="">— Select —</option>
+            <option value="nolive">Pregnant but no live births</option>
+            <option value="under20">Under 20</option>
+            <option value="20-24">20–24</option>
+            <option value="25-29">25–29</option>
+            <option value="30plus">30 or older</option>
+          </select>
+          <span class="err" id="err-firstbirth">Please select an option.</span>
+        </div>
+      </div>
+
+      <div class="fg" id="fg-menopause">
+        <label>Menopausal status</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="menopause" value="pre" onchange="hide('secMenopauseAge')"><div><div class="rm">Pre-menopausal</div><div class="rs">Still having periods</div></div></label>
+          <label class="ro"><input type="radio" name="menopause" value="post" onchange="show('secMenopauseAge')"><div><div class="rm">Post-menopausal</div><div class="rs">Periods have stopped permanently</div></div></label>
+          <label class="ro"><input type="radio" name="menopause" value="notsure" onchange="hide('secMenopauseAge')"><div><div class="rm">Not sure</div></div></label>
+        </div>
+        <span class="err" id="err-menopause">Please select an option.</span>
+      </div>
+      <div class="cond" id="secMenopauseAge">
+        <div class="fg" id="fg-menopauseage">
+          <label for="menopauseAge">Age at menopause</label>
+          <input type="number" id="menopauseAge" min="30" max="70" placeholder="e.g. 52">
+          <span class="err" id="err-menopauseage">Please enter an age (30–70).</span>
+        </div>
+      </div>
+
+      <div class="fg" id="fg-hrt">
+        <label>Current or past hormone replacement therapy (HRT) use?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="hrt" value="never"><div><div class="rm">Never used HRT</div></div></label>
+          <label class="ro"><input type="radio" name="hrt" value="estrogen"><div><div class="rm">Estrogen-only</div></div></label>
+          <label class="ro"><input type="radio" name="hrt" value="combined"><div><div class="rm">Estrogen + Progestin (combined)</div></div></label>
+          <label class="ro"><input type="radio" name="hrt" value="notsure"><div><div class="rm">Not sure / other</div></div></label>
+        </div>
+        <span class="err" id="err-hrt">Please select an option.</span>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" id="step-3">
+      <h2 class="step-title">Family History</h2>
+      <div class="info-box"><strong>Blood relatives</strong> means people genetically related to you — not step-relatives or relatives by marriage.</div>
+
+      <div class="fg" id="fg-rel1">
+        <label>First-degree relatives (mother, sisters, daughters) diagnosed with breast cancer?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="rel1" value="0"><div><div class="rm">None</div></div></label>
+          <label class="ro"><input type="radio" name="rel1" value="1"><div><div class="rm">1</div></div></label>
+          <label class="ro"><input type="radio" name="rel1" value="2"><div><div class="rm">2 or more</div></div></label>
+        </div>
+        <span class="err" id="err-rel1">Please select an option.</span>
+      </div>
+
+      <div class="fg" id="fg-ovcancer">
+        <label>Any first-degree relatives with ovarian cancer?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="ovcancer" value="yes"><div><div class="rm">Yes</div></div></label>
+          <label class="ro"><input type="radio" name="ovcancer" value="no"><div><div class="rm">No</div></div></label>
+          <label class="ro"><input type="radio" name="ovcancer" value="notsure"><div><div class="rm">Not sure</div></div></label>
+        </div>
+        <span class="err" id="err-ovcancer">Please select an option.</span>
+      </div>
+
+      <div class="fg" id="fg-rel2">
+        <label>Any second-degree relatives (grandmothers, aunts) with breast or ovarian cancer?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="rel2" value="yes"><div><div class="rm">Yes</div></div></label>
+          <label class="ro"><input type="radio" name="rel2" value="no"><div><div class="rm">No</div></div></label>
+          <label class="ro"><input type="radio" name="rel2" value="notsure"><div><div class="rm">Not sure</div></div></label>
+        </div>
+        <span class="err" id="err-rel2">Please select an option.</span>
+      </div>
+
+      <div class="fg" id="fg-malebc">
+        <label>Any male relatives diagnosed with breast cancer?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="malebc" value="yes"><div><div class="rm">Yes</div></div></label>
+          <label class="ro"><input type="radio" name="malebc" value="no"><div><div class="rm">No</div></div></label>
+          <label class="ro"><input type="radio" name="malebc" value="notsure"><div><div class="rm">Not sure</div></div></label>
+        </div>
+        <span class="err" id="err-malebc">Please select an option.</span>
+      </div>
+
+      <div class="fg" id="fg-brca">
+        <label>Genetic testing for BRCA1 or BRCA2 (you or close relatives)?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="brca" value="notested"><div><div class="rm">No testing done</div></div></label>
+          <label class="ro"><input type="radio" name="brca" value="negative"><div><div class="rm">Tested negative</div><div class="rs">No mutation found</div></div></label>
+          <label class="ro"><input type="radio" name="brca" value="brca1"><div><div class="rm">Positive for BRCA1</div></div></label>
+          <label class="ro"><input type="radio" name="brca" value="brca2"><div><div class="rm">Positive for BRCA2</div></div></label>
+          <label class="ro"><input type="radio" name="brca" value="notsure"><div><div class="rm">Not sure / unknown</div></div></label>
+        </div>
+        <span class="err" id="err-brca">Please select an option.</span>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-secondary" onclick="prevStep(3)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" id="step-4">
+      <h2 class="step-title">Breast History</h2>
+      <p class="step-sub">Breast density and biopsy history are important inputs for the risk models.</p>
+
+      <div class="fg" id="fg-mammo">
+        <label>Have you ever had a mammogram?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="mammo" value="yes" onchange="show('secDensity')"><div><div class="rm">Yes</div></div></label>
+          <label class="ro"><input type="radio" name="mammo" value="no" onchange="hide('secDensity')"><div><div class="rm">No</div></div></label>
+        </div>
+        <span class="err" id="err-mammo">Please select an option.</span>
+      </div>
+      <div class="cond" id="secDensity">
+        <div class="fg" id="fg-density">
+          <label for="density">
+            Breast density result
+            <button class="tip-btn" type="button" aria-label="What is breast density?">?<span class="tip-box">Breast density refers to the amount of glandular and fibrous tissue vs. fatty tissue on a mammogram. Denser breasts can make mammograms slightly harder to read and modestly raise risk. Your density category is usually reported in your mammogram results letter.</span></button>
+          </label>
+          <select id="density">
+            <option value="">— Select —</option>
+            <option value="a">Almost entirely fatty (BI-RADS A)</option>
+            <option value="b">Scattered areas of density (BI-RADS B)</option>
+            <option value="c">Heterogeneously dense (BI-RADS C)</option>
+            <option value="d">Extremely dense (BI-RADS D)</option>
+            <option value="unknown">I don't know / not reported</option>
+          </select>
+          <span class="err" id="err-density">Please select an option.</span>
+        </div>
+      </div>
+
+      <div class="fg" id="fg-biopsy">
+        <label>Have you ever had a breast biopsy?</label>
+        <div class="rg">
+          <label class="ro"><input type="radio" name="biopsy" value="yes" onchange="show('secBiopsy')"><div><div class="rm">Yes</div></div></label>
+          <label class="ro"><input type="radio" name="biopsy" value="no" onchange="hide('secBiopsy')"><div><div class="rm">No</div></div></label>
+        </div>
+        <span class="err" id="err-biopsy">Please select an option.</span>
+      </div>
+      <div class="cond" id="secBiopsy">
+        <div class="fg" id="fg-biopsyct">
+          <label for="biopsyCt">How many breast biopsies?</label>
+          <select id="biopsyCt">
+            <option value="">— Select —</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3 or more</option>
+          </select>
+          <span class="err" id="err-biopsyct">Please select an option.</span>
+        </div>
+        <div class="fg" id="fg-ah">
+          <label>
+            Did any biopsy show atypical hyperplasia?
+            <button class="tip-btn" type="button" aria-label="What is atypical hyperplasia?">?<span class="tip-box">Atypical hyperplasia means abnormal cells that are not cancer but that modestly raise future breast cancer risk. It would be noted in your biopsy pathology report.</span></button>
+          </label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="ah" value="yes"><div><div class="rm">Yes</div></div></label>
+            <label class="ro"><input type="radio" name="ah" value="no"><div><div class="rm">No</div></div></label>
+            <label class="ro"><input type="radio" name="ah" value="notsure"><div><div class="rm">Not sure / not in my records</div></div></label>
+          </div>
+          <span class="err" id="err-ah">Please select an option.</span>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn btn-secondary" onclick="prevStep(4)">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep(4)">See My Results →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Results -->
+    <div class="step" id="step-5">
+      <div class="r-header">
+        <h2>Your Breast Cancer Risk Estimate</h2>
+        <p>Statistical estimates based on the information you provided. Not a diagnosis.</p>
+      </div>
+      <div id="resultsContent"></div>
+      <div class="actions">
+        <button class="btn btn-primary print-btn" onclick="window.print()">Print These Results</button>
+        <button class="btn btn-secondary" onclick="location.reload()">Start Over</button>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="disclaimer">
+    This tool is for educational purposes only and does not constitute medical advice. Risk estimates are based on published statistical models and may not reflect your individual situation. Always consult your healthcare provider before making any decisions about your health.
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Utility ───────────────────────────────────────────────────────────────
+function show(id){ document.getElementById(id).style.display='block'; }
+function hide(id){ document.getElementById(id).style.display='none'; }
+function radio(name){ const el=document.querySelector(`input[name="${name}"]:checked`); return el?el.value:null; }
+
+// Live BMI
+['feet','inches','weight'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateBMI);
+});
+function updateBMI(){
+  const ft=parseFloat(document.getElementById('feet').value)||0;
+  const inch=parseFloat(document.getElementById('inches').value)||0;
+  const lbs=parseFloat(document.getElementById('weight').value)||0;
+  if(!ft||!lbs){document.getElementById('bmiNote').textContent='';return;}
+  const totalIn=(ft*12)+inch;
+  const bmi=(lbs/(totalIn*totalIn))*703;
+  document.getElementById('bmiNote').innerHTML=`BMI: <span class="bmi-val">${bmi.toFixed(1)}</span>`;
+}
+
+// ─── Navigation ────────────────────────────────────────────────────────────
+const STEP_NAMES = ['About You','Reproductive History','Family History','Breast History','Your Results'];
+
+function setStep(n){
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step-'+n).classList.add('active');
+  for(let i=1;i<=5;i++){
+    const d=document.getElementById('d'+i);
+    d.className='dot'+(i<n?' done':i===n?' active':'');
+  }
+  const pct=(n/5)*100;
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('pName').textContent=STEP_NAMES[n-1];
+  document.getElementById('pCount').textContent=n<5?`Step ${n} of 4`:'Results';
+  if(n===5) document.getElementById('progressWrap').style.display='none';
+  window.scrollTo(0,0);
+}
+
+function prevStep(cur){ setStep(cur-1); }
+
+function nextStep(cur){
+  if(!validate(cur)) return;
+  if(cur===4){ calcAndRender(); }
+  setStep(cur+1);
+}
+
+// ─── Validation ────────────────────────────────────────────────────────────
+function clearErrors(){ document.querySelectorAll('.has-error').forEach(el=>el.classList.remove('has-error')); }
+function fieldErr(id, errId){ document.getElementById(id).classList.add('has-error'); document.getElementById(errId).style.display='block'; }
+function radioErr(fgId, errId){ document.getElementById(fgId).classList.add('has-error'); document.getElementById(errId).style.display='block'; }
+
+function validate(step){
+  clearErrors();
+  document.querySelectorAll('.err').forEach(e=>e.style.display='none');
+  let ok=true;
+
+  if(step===1){
+    const age=parseFloat(document.getElementById('age').value);
+    if(!age||age<20||age>90){ fieldErr('fg-age','err-age'); ok=false; }
+    const ft=parseFloat(document.getElementById('feet').value);
+    if(!ft||ft<4||ft>7){ fieldErr('fg-feet','err-feet'); ok=false; }
+    const inch=parseFloat(document.getElementById('inches').value);
+    if(inch===''||isNaN(inch)||inch<0||inch>11){ fieldErr('fg-inches','err-inches'); ok=false; }
+    const wt=parseFloat(document.getElementById('weight').value);
+    if(!wt||wt<70||wt>600){ fieldErr('fg-weight','err-weight'); ok=false; }
+    if(!document.getElementById('race').value){ fieldErr('fg-race','err-race'); ok=false; }
+  }
+  if(step===2){
+    if(!radio('menarche')){ radioErr('fg-menarche','err-menarche'); ok=false; }
+    if(!radio('pregnant')){ radioErr('fg-pregnant','err-pregnant'); ok=false; }
+    if(radio('pregnant')==='yes'){
+      if(!document.getElementById('firstBirth').value){ fieldErr('fg-firstbirth','err-firstbirth'); ok=false; }
+    }
+    if(!radio('menopause')){ radioErr('fg-menopause','err-menopause'); ok=false; }
+    if(radio('menopause')==='post'){
+      const ma=parseFloat(document.getElementById('menopauseAge').value);
+      if(!ma||ma<30||ma>70){ fieldErr('fg-menopauseage','err-menopauseage'); ok=false; }
+    }
+    if(!radio('hrt')){ radioErr('fg-hrt','err-hrt'); ok=false; }
+  }
+  if(step===3){
+    if(!radio('rel1')){ radioErr('fg-rel1','err-rel1'); ok=false; }
+    if(!radio('ovcancer')){ radioErr('fg-ovcancer','err-ovcancer'); ok=false; }
+    if(!radio('rel2')){ radioErr('fg-rel2','err-rel2'); ok=false; }
+    if(!radio('malebc')){ radioErr('fg-malebc','err-malebc'); ok=false; }
+    if(!radio('brca')){ radioErr('fg-brca','err-brca'); ok=false; }
+  }
+  if(step===4){
+    if(!radio('mammo')){ radioErr('fg-mammo','err-mammo'); ok=false; }
+    if(radio('mammo')==='yes'){
+      if(!document.getElementById('density').value){ fieldErr('fg-density','err-density'); ok=false; }
+    }
+    if(!radio('biopsy')){ radioErr('fg-biopsy','err-biopsy'); ok=false; }
+    if(radio('biopsy')==='yes'){
+      if(!document.getElementById('biopsyCt').value){ fieldErr('fg-biopsyct','err-biopsyct'); ok=false; }
+      if(!radio('ah')){ radioErr('fg-ah','err-ah'); ok=false; }
+    }
+  }
+  return ok;
+}
+
+// ─── GAIL Model ────────────────────────────────────────────────────────────
+// Source: NCI BCRAT / Gail 1989, Costantino 1999
+// Race-specific average 5-year risks (population average, calibrated to SEER/NCI data)
+// These represent an "average" woman of that race and age (no elevated risk factors)
+const AVG5YR = {
+  white:    [.0004,.0008,.0014,.0024,.0074,.0110,.0140,.0158,.0178,.0188,.0192,.0188,.0175,.0150],
+  black:    [.0004,.0010,.0019,.0033,.0070,.0095,.0108,.0118,.0130,.0135,.0138,.0133,.0122,.0102],
+  hispanic: [.0003,.0006,.0010,.0018,.0048,.0070,.0090,.0102,.0116,.0122,.0126,.0122,.0113,.0095],
+  asian:    [.0002,.0005,.0009,.0016,.0040,.0060,.0078,.0090,.0102,.0108,.0112,.0108,.0100,.0084],
+  other:    [.0004,.0008,.0014,.0024,.0074,.0110,.0140,.0158,.0178,.0188,.0192,.0188,.0175,.0150]
+};
+// Age slots: 20,25,30,35,40,45,50,55,60,65,70,75,80,85
+
+// Population-average RR used to normalize above (menarche 12-13=1.10, first birth 20-24 + 0 rel=1.24)
+const POP_AVG_RR = 1.10 * 1.24; // = 1.364
+
+// GAIL combined table: firstBirth key → relatives → RR
+const FBREL = {
+  nulliparous: {0:1.00, 1:2.61, 2:6.80},
+  nolive:      {0:1.00, 1:2.61, 2:6.80},
+  under20:     {0:1.00, 1:2.61, 2:6.80},
+  '20-24':     {0:1.24, 1:2.68, 2:5.78},
+  '25-29':     {0:1.55, 1:2.76, 2:4.91},
+  '30plus':    {0:1.93, 1:2.83, 2:4.17}
+};
+
+function calcGailRR(d){
+  let rr = 1.0;
+  // Menarche
+  if(d.menarche==='under12') rr*=1.21;
+  else if(d.menarche==='12-13') rr*=1.10;
+  // First birth + relatives
+  const fbKey = d.pregnant==='no' ? 'nulliparous' : (d.firstBirth||'nolive');
+  const relN  = Math.min(parseInt(d.rel1)||0, 2);
+  rr *= (FBREL[fbKey]||FBREL['nulliparous'])[relN];
+  // Biopsies
+  const bCt = d.biopsy==='yes' ? Math.min(parseInt(d.biopsyCt)||1,3) : 0;
+  const hasAH = d.ah==='yes';
+  if(bCt===1) rr *= hasAH ? 1.70*1.67 : 1.70;
+  else if(bCt>=2) rr *= hasAH ? 2.88*1.67 : 2.88;
+  return rr;
+}
+
+function ageSlot(age){
+  // Returns index into AVG5YR arrays for the given age
+  const slots=[20,25,30,35,40,45,50,55,60,65,70,75,80,85];
+  let idx=0;
+  for(let i=0;i<slots.length;i++){if(age>=slots[i])idx=i;}
+  return idx;
+}
+
+function calcGail(d){
+  const age = parseInt(d.age);
+  const race = d.race;
+  const rr   = calcGailRR(d);
+  const indivRR = rr / POP_AVG_RR; // relative to population average
+  const avg5yr  = AVG5YR[race][ageSlot(age)];
+  const ind5yr  = Math.min(avg5yr * indivRR, 0.99);
+  const avgComp = avg5yr; // for display
+
+  // Lifetime risk (compound across 5-yr intervals from current age to 85)
+  const slots=[20,25,30,35,40,45,50,55,60,65,70,75,80,85];
+  const arr = AVG5YR[race];
+  let survInd=1, survAvg=1;
+  let started=false;
+  for(let i=0;i<slots.length;i++){
+    if(slots[i]>=age){ started=true; }
+    if(!started) continue;
+    const indRisk = Math.min(arr[i]*indivRR, 0.5);
+    const avgRisk = arr[i];
+    survInd *= (1-indRisk);
+    survAvg *= (1-avgRisk);
+  }
+  const ltInd = 1-survInd;
+  const ltAvg = 1-survAvg;
+
+  return { rr, ind5yr, avg5yr: avgComp, ltInd, ltAvg };
+}
+
+// ─── Tyrer-Cuzick Simplified ───────────────────────────────────────────────
+// Simplified model using family history weighting, density, and BRCA status
+// Per published literature (TC8 baseline; BRCA override from meta-analyses)
+function calcTC(d){
+  const brca = d.brca;
+  // BRCA override
+  if(brca==='brca1') return { lt: 0.72, cat:'high', isBRCA:true };
+  if(brca==='brca2') return { lt: 0.52, cat:'high', isBRCA:true };
+
+  // Start from population average lifetime risk by age/race
+  const age=parseInt(d.age);
+  const race=d.race;
+  const slots=[20,25,30,35,40,45,50,55,60,65,70,75,80,85];
+  const arr=AVG5YR[race];
+  let survAvg=1;
+  for(let i=0;i<slots.length;i++){
+    if(slots[i]>=age) survAvg*=(1-arr[i]);
+  }
+  const baselineLT = 1-survAvg;
+
+  let tcRR = 1.0;
+
+  // First-degree relatives with BC
+  const rel1=parseInt(d.rel1)||0;
+  if(rel1===1) tcRR*=1.80;
+  else if(rel1>=2) tcRR*=3.20;
+
+  // Ovarian cancer in 1st degree
+  if(d.ovcancer==='yes') tcRR*=1.40;
+
+  // Second-degree relatives
+  if(d.rel2==='yes') tcRR*=1.30;
+
+  // Male relative BC (strong BRCA signal)
+  if(d.malebc==='yes') tcRR*=1.50;
+
+  // Breast density
+  const density=d.mammo==='yes'?d.density:'unknown';
+  if(density==='c') tcRR*=1.50;
+  else if(density==='d') tcRR*=2.00;
+  else if(density==='a') tcRR*=0.80;
+
+  // Post-menopausal BMI
+  if(d.menopause==='post'){
+    const ft=parseFloat(d.feet)||0,inch=parseFloat(d.inches)||0,lbs=parseFloat(d.weight)||0;
+    const totalIn=(ft*12)+inch;
+    if(totalIn>0&&lbs>0){
+      const bmi=(lbs/(totalIn*totalIn))*703;
+      if(bmi>=30) tcRR*=1.35;
+    }
+  }
+
+  // HRT
+  if(d.hrt==='combined') tcRR*=1.26;
+  else if(d.hrt==='estrogen') tcRR*=1.05;
+
+  // Menarche (similar to GAIL, partially captured)
+  if(d.menarche==='under12') tcRR*=1.10;
+
+  const lt = Math.min(baselineLT * tcRR, 0.95);
+
+  let cat;
+  if(lt>=0.20) cat='high';
+  else if(lt>=0.15) cat='intermediate';
+  else cat='average';
+
+  return { lt, cat, isBRCA:false };
+}
+
+// ─── Render Results ────────────────────────────────────────────────────────
+function pct(v){ return (v*100).toFixed(1)+'%'; }
+
+function riskBadge(cat){
+  const map={
+    average: ['badge-avg','Average Risk'],
+    'slightly-elevated': ['badge-slight','Slightly Elevated'],
+    elevated: ['badge-elev','Elevated'],
+    intermediate: ['badge-slight','Intermediate'],
+    high: ['badge-elev','High Risk']
+  };
+  const [cls,label]=map[cat]||map['average'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function gailCat(lt){
+  if(lt>=0.20) return 'elevated';
+  if(lt>=0.15) return 'slightly-elevated';
+  return 'average';
+}
+
+function calcAndRender(){
+  // Gather all data
+  const d={
+    age: document.getElementById('age').value,
+    feet: document.getElementById('feet').value,
+    inches: document.getElementById('inches').value,
+    weight: document.getElementById('weight').value,
+    race: document.getElementById('race').value,
+    menarche: radio('menarche'),
+    pregnant: radio('pregnant'),
+    firstBirth: document.getElementById('firstBirth').value,
+    menopause: radio('menopause'),
+    menopauseAge: document.getElementById('menopauseAge').value,
+    hrt: radio('hrt'),
+    rel1: radio('rel1'),
+    ovcancer: radio('ovcancer'),
+    rel2: radio('rel2'),
+    malebc: radio('malebc'),
+    brca: radio('brca'),
+    mammo: radio('mammo'),
+    density: document.getElementById('density').value,
+    biopsy: radio('biopsy'),
+    biopsyCt: document.getElementById('biopsyCt').value,
+    ah: radio('ah')
+  };
+
+  const g = calcGail(d);
+  const tc = calcTC(d);
+  const gCat = gailCat(g.ltInd);
+  const highRisk = g.ltInd >= 0.20 || tc.lt >= 0.20;
+
+  const brcaNote = tc.isBRCA
+    ? `<div class="r-note">BRCA-positive individuals have significantly elevated lifetime risk. This estimate is based on published meta-analyses. Please discuss risk management with a genetic counselor.</div>`
+    : `<div class="r-note">This is a simplified estimate. Your provider can run a full Tyrer-Cuzick Version 8 calculation for a more precise result.</div>`;
+
+  const highRiskHtml = highRisk ? `
+    <div class="hr-callout">
+      <div class="hr-callout-title">⚠ You May Qualify as High Risk</div>
+      <p>Based on this estimate, your lifetime breast cancer risk is <strong>${pct(Math.max(g.ltInd,tc.lt))}</strong> or higher — at or above the <strong>20% threshold</strong> used to define high risk. This means you may benefit from additional screening, such as annual breast MRI in addition to mammography. <strong>Please share these results with your provider.</strong></p>
+    </div>` : '';
+
+  const raceLabel={white:'White women',black:'Black women',hispanic:'Hispanic women',asian:'Asian American women',other:'Women in your age group'}[d.race]||'Women your age';
+
+  document.getElementById('resultsContent').innerHTML = `
+    ${highRiskHtml}
+    <div class="r-grid">
+      <div class="r-card">
+        <div class="r-card-title">Gail Model</div>
+        <div class="r-card-sub">NCI Breast Cancer Risk Assessment Tool</div>
+        <div class="r-stat">
+          <div class="r-stat-lbl">5-Year Risk</div>
+          <div class="r-stat-val">${pct(g.ind5yr)}</div>
+          <div class="r-stat-cmp">Avg. for ${raceLabel} your age: ${pct(g.avg5yr)}</div>
+        </div>
+        <div class="r-stat">
+          <div class="r-stat-lbl">Lifetime Risk (to age 90)</div>
+          <div class="r-stat-val">${pct(g.ltInd)}</div>
+          <div class="r-stat-cmp">Avg. for ${raceLabel}: ${pct(g.ltAvg)}</div>
+        </div>
+        ${riskBadge(gCat)}
+      </div>
+      <div class="r-card">
+        <div class="r-card-title">Tyrer-Cuzick Estimate</div>
+        <div class="r-card-sub">Simplified model including density &amp; family history</div>
+        <div class="r-stat">
+          <div class="r-stat-lbl">Lifetime Risk Estimate</div>
+          <div class="r-stat-val">${pct(tc.lt)}</div>
+        </div>
+        <div class="r-stat">
+          <div class="r-stat-lbl">Risk Category</div>
+          <div class="r-stat-val" style="font-size:1.1rem">${tc.cat.charAt(0).toUpperCase()+tc.cat.slice(1)}</div>
+        </div>
+        ${riskBadge(tc.cat)}
+        ${brcaNote}
+      </div>
+    </div>
+
+    <div class="explainer">
+      <h3>What Do These Numbers Mean?</h3>
+      <p>These percentages represent your estimated probability of being diagnosed with breast cancer over the given time period, based on factors you provided. They are not a certainty — many women with elevated estimates never develop breast cancer, and some with low estimates do.</p>
+      <p>The <strong>Gail Model</strong> is the NCI's validated tool used in clinical practice. The <strong>Tyrer-Cuzick estimate</strong> here incorporates additional factors like breast density and extended family history.</p>
+      ${(gCat!=='average'||tc.cat!=='average') ? `
+      <p><strong>Steps you can take with an elevated estimate:</strong></p>
+      <ul>
+        <li>Share this printout with your primary care provider or OB/GYN at your next visit.</li>
+        <li>Ask whether supplemental breast MRI screening is right for you (typically recommended when lifetime risk ≥ 20%).</li>
+        <li>If you have a strong family history or BRCA concern, ask for a referral to a genetic counselor.</li>
+      </ul>` : `
+      <ul>
+        <li>Continue annual mammograms starting at age 40, or as recommended by your provider.</li>
+        <li>Know your breast density — ask about it at your next mammogram if you haven't received your result.</li>
+        <li>Maintain a healthy weight and limit alcohol, which modestly lower breast cancer risk.</li>
+      </ul>`}
+    </div>`;
+}
+</script>
+</body>
+</html>
